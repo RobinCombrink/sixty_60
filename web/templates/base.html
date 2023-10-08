@@ -1,0 +1,17 @@
+{{ define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <title>Shopping Manager</title>
+</head>
+
+<body>
+    {{ template "content" .}}
+</body>
+<footer>
+    {{ template "footer" .}}
+</footer>
+</html>
+{{ end }}
