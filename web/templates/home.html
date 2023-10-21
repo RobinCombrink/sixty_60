@@ -1,4 +1,7 @@
-{{ template "home" . }}
-{{ define "content" }}
-<div>Hello There</div>
-{{ end }}
+
+{{define "content"}}
+<h1>This is the home page</h1>
+{{end}}
+{{ define "home" }}
+{{template "base" .}}
+{{end}}

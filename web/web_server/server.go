@@ -11,7 +11,9 @@ import (
 )
 
 const serverIp = "127.0.0.1"
+
 var invoices []schema.Invoice
+
 /*
 Starts echo HTTP server and blocks the current thread
 */
@@ -34,9 +36,11 @@ func setupRoutes(instance *echo.Echo) {
 	instance.GET("home", getRoot)
 	instance.GET("invoices", getInvoices)
 }
-func getInvoices(c echo.Context) error{
-return c.Render(http.StatusOK, "base", nil)
+func getInvoices(c echo.Context) error {
+	invoiceData := make(map[string][]schema.Invoice)
+	invoiceData["invoices"] = invoices
+	return c.Render(http.StatusOK, "invoices", invoiceData)
 }
 func getRoot(c echo.Context) error {
-	return c.Render(http.StatusOK, "base", nil)
+	return c.Render(http.StatusOK, "home", nil)
 }
