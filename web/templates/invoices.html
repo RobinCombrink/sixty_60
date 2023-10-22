@@ -3,24 +3,25 @@
 <div>
     {{range .invoices}}
     <div>
-        <h2>Order on: {{ .Date }}</div>
-        <div>XtraSavings: R{{divideUInt16 .XtraSavings 100}}</div>
-        <div>Delivery Fee: R{{divideUInt16 .DeliveryFee 100}}</div>
-
-        <h3>Line Items</h3>
-        <div>
-            {{range .Items}}
-            <h4>{{.Name}}</h4>
-            <ul>
-                <li>{{.Quantity}}</li>
-                <li>R{{divideUInt64 .Price 100}}</li>
-                <li>{{.Total}}</li>
-                <li>{{.Discount}}</li>
-            </ul>
-            {{end}}
-        </div>
+        <h2>Order on: {{ToReadableDate .Date }}
     </div>
-    {{end}}
+    <div>XtraSavings: {{ToRand .XtraSavings }}</div>
+    <div>Delivery Fee: {{ToRand .DeliveryFee }}</div>
+
+    <h3>Line Items</h3>
+    <div>
+        {{range .Items}}
+        <h4>{{.Name}}</h4>
+        <ul>
+            <li>{{.Quantity}}</li>
+            <li>{{ToRand .Price}}</li>
+            <li>{{ToRand .Total}}</li>
+            {{if eq .Discount 0}}<li>{{ToRand .Discount}}</li>{{end}}
+        </ul>
+        {{end}}
+    </div>
+</div> 
+{{end}}
 </div>
 {{ end }}
 

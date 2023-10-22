@@ -28,7 +28,7 @@ const userLabelType = "user"
 func main() {
 	// messageBodies := readMessageBodiesFromGoogle(true)
 	messageBodies := readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
-	invoices := getInvoices(messageBodies)
+	invoices :=getInvoices(messageBodies)
 
 	webserver.SetupHttpServer(invoices)
 }
@@ -43,7 +43,7 @@ func getInvoices(messageBodies []string) (invoices []schema.Invoice) {
 		}
 		//Convert from cents
 		total = (total / 100) + (float64(invoice.DeliveryFee) / 100)
-		fmt.Printf("total: R%.2f\n", total)
+		// fmt.Printf("total: R%.2f\n", total)
 		invoices = append(invoices, *invoice)
 	}
 	return invoices

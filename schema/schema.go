@@ -4,8 +4,8 @@ import (
 )
 type Invoice struct {
 	Items []LineItem
-	DeliveryFee uint16
-	XtraSavings uint16
+	DeliveryFee uint64
+	XtraSavings uint64
 	Date time.Time
 }
 type LineItem struct {
@@ -14,4 +14,13 @@ type LineItem struct {
 	Price uint64
 	Total uint64
 	Discount uint64
+}
+
+type DisplayInvoiceSummay struct {
+	TotalSpent string
+	TotalSaved string
+	// TotalItemUnitsOrdered string
+	TotalItemsOrdered uint64
+	TotalOrders uint64
+	// AverageOrderCost string
 }

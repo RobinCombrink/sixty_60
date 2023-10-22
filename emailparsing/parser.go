@@ -1,15 +1,14 @@
 package emailparsing
 
 import (
-	// "fmt"
+	"parser60/format"
 	"parser60/schema"
 	"strconv"
-
-	// "strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
+const deliveryDateTimeText string = "Delivery Date & Time"
 
 func GetInvoiceFromHtml(htmlData string) *schema.Invoice {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(htmlData))
@@ -53,6 +52,22 @@ func GetInvoiceFromHtml(htmlData string) *schema.Invoice {
 			invoice.Items = append(invoice.Items, item)
 		}
 	})
+	doc.Find("table[width='100%'][border='0'][cellpadding='0'][cellspacing='0']").Each(func(i int, s *goquery.Selection) {
+		s.Find("tr").Each(func(j int, tr *goquery.Selection) {
+			tr.Find("td").Each(func(k int, td *goquery.Selection) {
+				td.Find("span").Each(func(l int, span *goquery.Selection) {
+					text := span.Text()
+					if text == deliveryDateTimeText {
+						deliveryDateTime := td.Next().Find("span").Text()
+						if deliveryDateTime != "" {
+							invoice.Date = format.ToDate(deliveryDateTime)
+						}
+					}
+				})
+
+			})
+		})
+	})
 
 	filteredItems := make([]schema.LineItem, 0)
 	for i := 0; i < len(invoice.Items); i++ {
@@ -60,6 +75,7 @@ func GetInvoiceFromHtml(htmlData string) *schema.Invoice {
 		if item.Name != "" {
 			if i < len(invoice.Items)-1 && invoice.Items[i+1].Name == "" {
 				item.Discount = invoice.Items[i+1].Discount
+				invoice.XtraSavings += item.Discount
 				i++ // Skip next item
 			}
 			filteredItems = append(filteredItems, item)
@@ -72,5 +88,4 @@ func GetInvoiceFromHtml(htmlData string) *schema.Invoice {
 func toCents(input float64) uint64 {
 	epsilon := 0.0001
 	return uint64((input + epsilon) * 100)
-
 }

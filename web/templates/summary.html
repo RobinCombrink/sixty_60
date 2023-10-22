@@ -1,0 +1,15 @@
+{{ define "content" }}
+<h1>Invoice Details</h1>
+<div>
+    <ul>
+        <li>Total Spent: {{ .TotalSpent }}</li>
+        <li>Total Saved: {{ .TotalSaved }}</li>
+        <li>Total Items Ordered:  {{ .TotalItemsOrdered }}</li>
+        <li>Total Orders: {{ .TotalOrders }}</li>
+    </ul>
+</div>
+{{ end }}
+
+{{ define "summary" }}
+{{ template "base" . }}
+{{ end }}

@@ -3,6 +3,7 @@ package template
 import (
 	"fmt"
 	"io"
+	"parser60/format"
 	"text/template"
 
 	"github.com/labstack/echo/v4"
@@ -19,7 +20,7 @@ func (t *Template) Render(writer io.Writer, name string, data interface{}, conte
 
 func NewTemplateRenderer(e *echo.Echo, paths ...string) {
 	tmpl := &template.Template{}
-	tmpl.Funcs(template.FuncMap{"divideUInt64": DivideUInt64, "divideUInt16": DivideUInt16,})
+	tmpl.Funcs(template.FuncMap{"ToRand": format.ToRand, "ToReadableDate": format.ToReadableDate, "divideUInt16": DivideUInt16,})
 	for i := range paths {
 		fmt.Printf(paths[i] + "\n")
 		template.Must(tmpl.ParseGlob(paths[i]))
