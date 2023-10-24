@@ -1,11 +1,5 @@
 package schema
 
-import "time"
-
-type Filter struct {
-	Date time.Time
-}
-
 type DisplayTemplate interface {
 	GetTemplateDisplayName() string
 	GetTemplateData() interface{}
@@ -17,6 +11,18 @@ type DisplayInvoiceSummary struct {
 	TotalItemsOrdered uint64
 	TotalOrders       uint64
 	TemplateName      string
+	ImportantItems    map[string]DisplayImportantItem
+}
+
+type DisplayImportantItem struct {
+	Name string
+	TotalSpent string
+	MaximumUnitPrice string
+	MinimumUnitPrice string
+	AverageSpent string
+	AverageUnitPrice string
+	TotalQuantity uint32
+	TotalSaved string
 }
 
 func (invoiceSummary DisplayInvoiceSummary) GetTemplateDisplayName() string {
@@ -29,12 +35,14 @@ func (invoiceSummary DisplayInvoiceSummary) GetTemplateData() interface{} {
 func GetDisplayInvoiceSummary(totalSpent string,
 	totalSaved string,
 	totalItemsOrdered uint64,
-	totalOrders uint64) DisplayTemplate {
+	totalOrders uint64,
+	importantItems map[string]DisplayImportantItem) DisplayTemplate {
 	return DisplayInvoiceSummary{
 		TotalSpent:        totalSpent,
 		TotalSaved:        totalSaved,
 		TotalItemsOrdered: totalItemsOrdered,
 		TotalOrders:       totalOrders,
+		ImportantItems: importantItems,
 		TemplateName:      "DisplayInvoiceSummary"}
 }
 

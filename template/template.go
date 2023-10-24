@@ -5,6 +5,7 @@ import (
 	"io"
 	"parser60/format"
 	"text/template"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -14,13 +15,16 @@ type Template struct {
 }
 
 func (t *Template) Render(writer io.Writer, name string, data interface{}, context echo.Context) error {
-	fmt.Printf("data: %v\n", name)
 	return t.Templates.ExecuteTemplate(writer, name, data)
 }
 
 func NewTemplateRenderer(e *echo.Echo, paths ...string) {
 	tmpl := &template.Template{}
-	tmpl.Funcs(template.FuncMap{"ToRand": format.ToRand, "ToReadableDate": format.ToReadableDate, "divideUInt16": DivideUInt16,})
+	tmpl.Funcs(template.FuncMap{
+		"ToRand":         format.ToRand,
+		"ToReadableDate": format.ToReadableDate,
+		"divideUInt16":   DivideUInt16,
+		"DateToday":      dateToday})
 	for i := range paths {
 		fmt.Printf(paths[i] + "\n")
 		template.Must(tmpl.ParseGlob(paths[i]))
@@ -34,6 +38,9 @@ func newTemplate(templates *template.Template) echo.Renderer {
 	return &Template{
 		Templates: templates,
 	}
+}
+func dateToday() string {
+	return format.ToDatePickerDate(time.Now())
 }
 func DivideUInt64(param1 uint64, param2 uint64) uint64 {
 	return param1 / param2

@@ -37,13 +37,6 @@ func getInvoices(messageBodies []string) (invoices []schema.Invoice) {
 	for _, messageBody := range messageBodies {
 		invoice := emailparsing.GetInvoiceFromHtml(string(messageBody))
 
-		var total float64
-		for _, item := range invoice.Items {
-			total += float64(item.Total - item.Discount)
-		}
-		//Convert from cents
-		total = (total / 100) + (float64(invoice.DeliveryFee) / 100)
-		// fmt.Printf("total: R%.2f\n", total)
 		invoices = append(invoices, *invoice)
 	}
 	return invoices

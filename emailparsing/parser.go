@@ -21,7 +21,7 @@ func GetInvoiceFromHtml(htmlData string) *schema.Invoice {
 		table.Find("tr").Each(func(j int, tr *goquery.Selection) {
 			if j == 0 { // This is the first row (discount row)
 				tr.Find("td").Each(func(k int, td *goquery.Selection) {
-					if k == 3 { // This is the fourth cell (discount cell)
+					if k == 3 {
 						text := strings.TrimSpace(td.Text())
 						discount, _ := strconv.ParseFloat(strings.TrimPrefix(text, "- R "), 64)
 						item.Discount = toCents(discount) // Convert to string with 2 decimal places

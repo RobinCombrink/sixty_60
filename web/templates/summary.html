@@ -1,4 +1,5 @@
 {{ define "invoicesSummary" }}
+<h2>Summary</h2>
 <div id="invoicesSummary" class="invoicesSummary">
     <ul>
         <li>Total Spent: {{ .TotalSpent }}</li>
@@ -7,15 +8,30 @@
         <li>Total Orders: {{ .TotalOrders }}</li>
     </ul>
 </div>
-
+{{range .ImportantItems}}
+<h2>Important Items</h2>
+<div id="importantItem" class="importantItem">
+    <h3>Cheese of all types</h3>
+    <ul>
+        <li>MaximumUnitPrice: {{.MaximumUnitPrice}}</li>
+        <li>MinimumUnitPrice: {{.MinimumUnitPrice}}</li>
+        <li>TotalSpent: {{.TotalSpent}}</li>
+        <li>TotalQuantity: {{.TotalQuantity}}</li>
+        <li>TotalSaved: {{.TotalSaved}}</li>
+        <li>AverageSpent: {{.AverageSpent}}</li>
+        <li>AverageUnitPrice: {{.AverageUnitPrice}}</li>
+    </ul>
+</div>
+{{end}}
 {{ end }}
 
 {{ define "summary" }}
-<h1>Invoice Details</h1>
+<h1>Invoices Summary</h1>
 <div class="filter">
     <h3>Filter</h3>
-    <form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true" value=""2023-10-24>
-        <input type="date" name="date">
+    <form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true">
+        <input type="date" name="startDate" value="2023-01-01">
+        <input type="date" name="endDate" value="{{DateToday}}">
         <div><input type="submit" value="Apply"></div>
     </form>
 </div>
