@@ -1,0 +1,58 @@
+package schema
+
+import "time"
+
+type Filter struct {
+	Date time.Time
+}
+
+type DisplayTemplate interface {
+	GetTemplateDisplayName() string
+	GetTemplateData() interface{}
+}
+
+type DisplayInvoiceSummary struct {
+	TotalSpent        string
+	TotalSaved        string
+	TotalItemsOrdered uint64
+	TotalOrders       uint64
+	TemplateName      string
+}
+
+func (invoiceSummary DisplayInvoiceSummary) GetTemplateDisplayName() string {
+	return invoiceSummary.TemplateName
+}
+func (invoiceSummary DisplayInvoiceSummary) GetTemplateData() interface{} {
+	return invoiceSummary
+}
+
+func GetDisplayInvoiceSummary(totalSpent string,
+	totalSaved string,
+	totalItemsOrdered uint64,
+	totalOrders uint64) DisplayTemplate {
+	return DisplayInvoiceSummary{
+		TotalSpent:        totalSpent,
+		TotalSaved:        totalSaved,
+		TotalItemsOrdered: totalItemsOrdered,
+		TotalOrders:       totalOrders,
+		TemplateName:      "DisplayInvoiceSummary"}
+}
+
+type DisplayInvoiceList struct {
+	Invoices     []Invoice
+	TemplateName string
+}
+
+func (invoiceList DisplayInvoiceList) GetTemplateDisplayName() string {
+	return invoiceList.TemplateName
+}
+
+func (invoiceList DisplayInvoiceList) GetTemplateData() interface{} {
+	return invoiceList
+}
+
+func GetDisplayInvoiceList(invoices []Invoice) DisplayTemplate {
+	return DisplayInvoiceList{
+		Invoices:     invoices,
+		TemplateName: "DisplayInvoiceList"}
+}

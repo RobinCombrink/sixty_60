@@ -1,7 +1,7 @@
-{{ define "content" }}
+{{ define "invoicesList" }}
 <h1>These are your invoices</h1>
 <div>
-    {{range .invoices}}
+    {{range .Invoices}}
     <div>
         <h2>Order on: {{ToReadableDate .Date }}
     </div>
@@ -20,8 +20,7 @@
         </ul>
         {{end}}
     </div>
-</div> 
-{{end}}
+    {{ end }}
 </div>
 {{ end }}
 

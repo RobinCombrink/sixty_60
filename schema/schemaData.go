@@ -15,12 +15,3 @@ type LineItem struct {
 	Total uint64
 	Discount uint64
 }
-
-type DisplayInvoiceSummay struct {
-	TotalSpent string
-	TotalSaved string
-	// TotalItemUnitsOrdered string
-	TotalItemsOrdered uint64
-	TotalOrders uint64
-	// AverageOrderCost string
-}

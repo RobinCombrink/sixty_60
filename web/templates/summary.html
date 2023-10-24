@@ -1,15 +1,23 @@
-{{ define "content" }}
-<h1>Invoice Details</h1>
-<div>
+{{ define "invoicesSummary" }}
+<div id="invoicesSummary" class="invoicesSummary">
     <ul>
         <li>Total Spent: {{ .TotalSpent }}</li>
         <li>Total Saved: {{ .TotalSaved }}</li>
-        <li>Total Items Ordered:  {{ .TotalItemsOrdered }}</li>
+        <li>Total Items Ordered: {{ .TotalItemsOrdered }}</li>
         <li>Total Orders: {{ .TotalOrders }}</li>
     </ul>
 </div>
+
 {{ end }}
 
 {{ define "summary" }}
+<h1>Invoice Details</h1>
+<div class="filter">
+    <h3>Filter</h3>
+    <form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true" value=""2023-10-24>
+        <input type="date" name="date">
+        <div><input type="submit" value="Apply"></div>
+    </form>
+</div>
 {{ template "base" . }}
 {{ end }}

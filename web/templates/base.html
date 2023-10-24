@@ -8,10 +8,17 @@
 </head>
 
 <body>
-    {{ template "content" .}}
+    {{ if eq .TemplateName "DisplayInvoiceList" }}
+        {{ template "invoicesList" .}}
+    {{ else if eq .TemplateName "DisplayInvoiceSummary" }}
+        {{ template "invoicesSummary" .}}
+    {{ else }}
+    <h1>Are you lost?</h1>
+    {{ end }}
 </body>
 <footer>
     {{ template "footer" .}}
 </footer>
+
 </html>
 {{ end }}
