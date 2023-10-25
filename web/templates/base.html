@@ -8,9 +8,16 @@
 </head>
 
 <body>
+    <div class="topnav">
+        <a href="/">Home</a>
+        <a href="/invoices">Invoice List</a>
+        <a href="/summary">Summary</a>
+        <!-- <a href="#about">About</a> -->
+      </div>
     {{ if eq .TemplateName "DisplayInvoiceList" }}
         {{ template "invoicesList" .}}
     {{ else if eq .TemplateName "DisplayInvoiceSummary" }}
+        {{ template "invoiceFilter"}}
         {{ template "invoicesSummary" .}}
     {{ else }}
     <h1>Are you lost?</h1>

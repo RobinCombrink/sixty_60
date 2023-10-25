@@ -11,7 +11,7 @@
 {{range .ImportantItems}}
 <h2>Important Items</h2>
 <div id="importantItem" class="importantItem">
-    <h3>Cheese of all types</h3>
+    {{ range .Names}} <h3>{{.}}</h3>{{end}}
     <ul>
         <li>MaximumUnitPrice: {{.MaximumUnitPrice}}</li>
         <li>MinimumUnitPrice: {{.MinimumUnitPrice}}</li>
@@ -19,13 +19,12 @@
         <li>TotalQuantity: {{.TotalQuantity}}</li>
         <li>TotalSaved: {{.TotalSaved}}</li>
         <li>AverageSpent: {{.AverageSpent}}</li>
-        <li>AverageUnitPrice: {{.AverageUnitPrice}}</li>
     </ul>
 </div>
 {{end}}
 {{ end }}
 
-{{ define "summary" }}
+{{ define "invoiceFilter"}}
 <h1>Invoices Summary</h1>
 <div class="filter">
     <h3>Filter</h3>
@@ -35,5 +34,8 @@
         <div><input type="submit" value="Apply"></div>
     </form>
 </div>
+{{ end }}
+
+{{ define "summary" }}
 {{ template "base" . }}
 {{ end }}

@@ -15,14 +15,14 @@ type DisplayInvoiceSummary struct {
 }
 
 type DisplayImportantItem struct {
-	Name string
-	TotalSpent string
+	Names            []string
+	TotalSpent       string
 	MaximumUnitPrice string
 	MinimumUnitPrice string
-	AverageSpent string
+	AverageSpent     string
 	AverageUnitPrice string
-	TotalQuantity uint32
-	TotalSaved string
+	TotalQuantity    uint32
+	TotalSaved       string
 }
 
 func (invoiceSummary DisplayInvoiceSummary) GetTemplateDisplayName() string {
@@ -42,7 +42,7 @@ func GetDisplayInvoiceSummary(totalSpent string,
 		TotalSaved:        totalSaved,
 		TotalItemsOrdered: totalItemsOrdered,
 		TotalOrders:       totalOrders,
-		ImportantItems: importantItems,
+		ImportantItems:    importantItems,
 		TemplateName:      "DisplayInvoiceSummary"}
 }
 

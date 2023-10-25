@@ -12,6 +12,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
@@ -78,65 +79,85 @@ func getSummary(c echo.Context) error {
 	return c.Render(http.StatusOK, "summary", displayInvoiceSummary)
 }
 
+func calculateInvoice(invoice schema.Invoice, filter schema.Filter) (uint64, uint64, uint64) {
+	var invoiceTotal uint64 = 0
+	var invoiceSaved uint64 = 0
+	var invoiceItemsOrdered uint64 = 0
+	for _, lineItem := range invoice.Items {
+		invoiceTotal += lineItem.Total
+		invoiceSaved += lineItem.Discount
+		invoiceItemsOrdered += 1
+	}
+	return invoiceTotal, invoiceSaved, invoiceItemsOrdered
+}
+
+func updateImportantItems(importantItems map[string]schema.ImportantItem, lineItem schema.LineItem, importantItemFilter schema.ImportantItemFilter) map[string]schema.ImportantItem {
+	if importantItemFilter.Contains {
+		if strings.Contains(lineItem.Name, importantItemFilter.Name) {
+			if slices.Contains(importantItemFilter.Whitelist, lineItem.Name) {
+				fmt.Printf("%s %v\n", lineItem.Name, lineItem.Price-lineItem.Discount)
+				names := importantItems[importantItemFilter.Name].Names
+				if names == nil {
+					names = make(map[string]schema.Void)
+				}
+				names[lineItem.Name] = schema.Void{}
+				importantItems[importantItemFilter.Name] = schema.ImportantItem{
+					Names:            names,
+					TotalSaved:       importantItems[importantItemFilter.Name].TotalSaved + (lineItem.Discount * uint64(lineItem.Quantity)),
+					TotalSpent:       importantItems[importantItemFilter.Name].TotalSpent + lineItem.Total,
+					TotalQuantity:    importantItems[importantItemFilter.Name].TotalQuantity + lineItem.Quantity,
+					MaximumUnitPrice: getMax(importantItems[importantItemFilter.Name].MaximumUnitPrice, lineItem.Price-lineItem.Discount),
+					MinimumUnitPrice: getMin(importantItems[importantItemFilter.Name].MinimumUnitPrice, lineItem.Price-lineItem.Discount),
+				}
+			}
+		}
+	}
+	return importantItems
+}
+
+func createDisplayImportantItems(importantItems map[string]schema.ImportantItem) map[string]schema.DisplayImportantItem {
+	var importantItemsDisplay map[string]schema.DisplayImportantItem = make(map[string]schema.DisplayImportantItem)
+	for key, importantItem := range importantItems {
+		importantItemsDisplay[key] = schema.DisplayImportantItem{
+			Names:            maps.Keys(importantItem.Names),
+			TotalSpent:       format.ToRand(importantItem.TotalSpent),
+			TotalQuantity:    importantItem.TotalQuantity,
+			TotalSaved:       format.ToRand(importantItem.TotalSaved),
+			MaximumUnitPrice: format.ToRand(importantItem.MaximumUnitPrice),
+			MinimumUnitPrice: format.ToRand(importantItem.MinimumUnitPrice),
+			AverageUnitPrice: format.ToRand(importantItem.TotalSpent / uint64(importantItem.TotalQuantity)),
+		}
+	}
+	return importantItemsDisplay
+}
+
 func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schema.DisplayTemplate {
 	var totalSpent uint64 = 0
 	var totalSaved uint64 = 0
 	var totalItemsOrdered uint64 = 0
 	var totalOrders uint64 = 0
-	var importantItemsDisplay map[string]schema.DisplayImportantItem = make(map[string]schema.DisplayImportantItem, len(filter.ImportantItemFilters))
+
 	var importantItems map[string]schema.ImportantItem = make(map[string]schema.ImportantItem, len(filter.ImportantItemFilters))
+
 	for _, invoice := range invoices {
 		if filter.StartDate.IsZero() || (invoice.Date.After(filter.StartDate) && invoice.Date.Before(filter.EndDate)) {
-			var invoiceTotal uint64 = 0
-			var invoiceSaved uint64 = 0
-			var invoiceItemsOrdered uint64 = 0
+
+			invoiceTotal, invoiceSaved, invoiceItemsOrdered := calculateInvoice(invoice, filter)
+
 			for _, lineItem := range invoice.Items {
-
 				for _, importantItemFilter := range filter.ImportantItemFilters {
-					if importantItemFilter.Contains {
-						if strings.Contains(lineItem.Name, importantItemFilter.Name) {
-							fmt.Printf("%s %v\n", lineItem.Name, lineItem.Price-lineItem.Discount)
-							if slices.Contains(importantItemFilter.Whitelist, lineItem.Name) {
-								importantItems[importantItemFilter.Name] = schema.ImportantItem{
-									Name:             lineItem.Name,
-									TotalSpent:       importantItems[importantItemFilter.Name].TotalSpent + lineItem.Total,
-									TotalQuantity:    importantItems[importantItemFilter.Name].TotalQuantity + lineItem.Quantity,
-									MaximumUnitPrice: getMax(importantItems[importantItemFilter.Name].MaximumUnitPrice, lineItem.Price-lineItem.Discount),
-									MinimumUnitPrice: getMin(importantItems[importantItemFilter.Name].MinimumUnitPrice, lineItem.Price-lineItem.Discount),
-									TotalSaved:       importantItems[importantItemFilter.Name].TotalSaved + (lineItem.Discount * uint64(lineItem.Quantity)),
-								}
-							}
-						}
-					}
-					// else {
-					// 	if lineItem.Name == importantItemFilter.Name {
-
-					// 	}
-					// }
+					importantItems = updateImportantItems(importantItems, lineItem, importantItemFilter)
 				}
-
-				invoiceTotal += lineItem.Total
-				invoiceSaved += lineItem.Discount
-				invoiceItemsOrdered += 1
 			}
+
 			totalSpent += invoiceTotal
 			totalSaved += invoiceSaved
 			totalItemsOrdered += invoiceItemsOrdered
 			totalOrders += 1
 		}
 	}
-	for key, importantItem := range importantItems {
-		importantItemsDisplay[key] = schema.DisplayImportantItem{
-			Name:             importantItem.Name,
-			TotalSpent:       format.ToRand(importantItem.TotalSpent),
-			TotalQuantity:    importantItem.TotalQuantity,
-			TotalSaved:       format.ToRand(importantItem.TotalSaved),
-			MaximumUnitPrice: format.ToRand(importantItem.MaximumUnitPrice),
-			MinimumUnitPrice: format.ToRand(importantItem.MinimumUnitPrice),
-			AverageSpent:     format.ToRand(importantItem.TotalSpent / uint64(importantItem.TotalQuantity)),
-			// AverageUnitPrice: format.ToRand(importantItem.),
-		}
-	}
+
+	var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
 
 	return schema.GetDisplayInvoiceSummary(
 		format.ToRand(totalSpent),
@@ -146,24 +167,18 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 		importantItemsDisplay)
 }
 
-func getMax(num1 uint64, num2 uint64) uint64 {
+func getMax(num1, num2 uint64) uint64 {
 	if num1 > num2 {
 		return num1
-	} else {
-		return num2
 	}
+	return num2
 }
-func getMin(num1 uint64, num2 uint64) uint64 {
-	if num1 == 0 {
-		return num2
-	} else if num2 == 0 {
-		return num1
-	}
-	if num1 < num2 {
-		return num1
-	} else {
+
+func getMin(num1, num2 uint64) uint64 {
+	if num1 == 0 || num1 > num2 {
 		return num2
 	}
+	return num1
 }
 
 func getInvoices(c echo.Context) error {

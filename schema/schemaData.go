@@ -19,10 +19,12 @@ type LineItem struct {
 }
 
 type ImportantItem struct {
-	Name             string
+	Names            map[string]Void
 	MaximumUnitPrice uint64
 	MinimumUnitPrice uint64
 	TotalSaved       uint64
 	TotalSpent       uint64
 	TotalQuantity    uint32
 }
+
+type Void struct {}
