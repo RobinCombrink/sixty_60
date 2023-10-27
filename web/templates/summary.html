@@ -1,6 +1,26 @@
+{{ define "invoiceFilter"}}
+<h1>Invoices Summary</h1>
+<div class="filter">
+    <h3>Filter</h3>
+    <form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true">
+        <div>
+            <input type="date" name="startDate" value="2023-01-01">
+            <input type="date" name="endDate" value="{{DateToday}}">
+        </div>
+        <div>
+            <input type="text" name="searchText" placeholder="Search">
+            <input type="checkbox" name="searchContains" value="Contains" checked="true">
+        </div>
+        <div>
+            <input type="submit" value="Apply">
+        </div>
+    </form>
+</div>
+{{ end }}
+
 {{ define "invoicesSummary" }}
-<h2>Summary</h2>
 <div id="invoicesSummary" class="invoicesSummary">
+    <h2>Summary</h2>
     <ul>
         <li>Total Spent: {{ .TotalSpent }}</li>
         <li>Total Saved: {{ .TotalSaved }}</li>
@@ -8,34 +28,13 @@
         <li>Total Orders: {{ .TotalOrders }}</li>
     </ul>
 </div>
-{{range .ImportantItems}}
-<h2>Important Items</h2>
-<div id="importantItem" class="importantItem">
-    {{ range .Names}} <h3>{{.}}</h3>{{end}}
-    <ul>
-        <li>MaximumUnitPrice: {{.MaximumUnitPrice}}</li>
-        <li>MinimumUnitPrice: {{.MinimumUnitPrice}}</li>
-        <li>TotalSpent: {{.TotalSpent}}</li>
-        <li>TotalQuantity: {{.TotalQuantity}}</li>
-        <li>TotalSaved: {{.TotalSaved}}</li>
-        <li>AverageSpent: {{.AverageSpent}}</li>
-    </ul>
-</div>
 {{end}}
-{{ end }}
-
-{{ define "invoiceFilter"}}
-<h1>Invoices Summary</h1>
-<div class="filter">
-    <h3>Filter</h3>
-    <form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true">
-        <input type="date" name="startDate" value="2023-01-01">
-        <input type="date" name="endDate" value="{{DateToday}}">
-        <div><input type="submit" value="Apply"></div>
-    </form>
-</div>
-{{ end }}
 
 {{ define "summary" }}
-{{ template "base" . }}
+{{template "header"}}
+{{ template "header" }}
+{{ template "topnav"}}
+{{ template "invoiceFilter"}}
+{{ template "invoicesSummary" .}}
+{{ template "footer"}}
 {{ end }}

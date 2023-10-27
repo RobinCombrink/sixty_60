@@ -9,7 +9,7 @@ type Filter struct {
 }
 
 type ImportantItemFilter struct {
-	Name     string
-	Contains bool
-	Whitelist []string
+	Name      string
+	Contains  bool
+	Blacklist []string
 }

@@ -1,0 +1,23 @@
+{{ define "importantItemsContent"}}
+<div id="importantItem" class="importantItem">
+    <h2>Important Items</h2>
+    {{range $index, $value := .ImportantItems}}
+    <div id="names" class="names">
+        {{ range $value.Names}}
+        <div id="{{.}}">
+            <h3>{{.}}</h3>
+            <!-- <input type="button" hx-delete="/summary/important_items/delete/{{.}}" hx-boost="true" hx-trigger="click" value="remove"> -->
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+    <ul>
+        <li>MaximumUnitPrice: {{.MaximumUnitPrice}}</li>
+        <li>MinimumUnitPrice: {{.MinimumUnitPrice}}</li>
+        <li>TotalSpent: {{.TotalSpent}}</li>
+        <li>TotalQuantity: {{.TotalQuantity}}</li>
+        <li>TotalSaved: {{.TotalSaved}}</li>
+        <li>AverageSpent: {{.AverageSpent}}</li>
+    </ul>
+</div>
+{{ end }}

@@ -1,7 +1,10 @@
 
-{{define "content"}}
+{{define "homeContent"}}
 <h1>This is the home page</h1>
 {{end}}
 {{ define "home" }}
-{{template "base" .}}
+{{ template "topnav"}}
+
+{{template "homeContent"}}
+
 {{end}}

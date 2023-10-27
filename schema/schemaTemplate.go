@@ -5,24 +5,22 @@ type DisplayTemplate interface {
 	GetTemplateData() interface{}
 }
 
+type DisplayImportantItem struct {
+	Names            []string
+	TotalSpent       string
+	MaximumUnitPrice string
+	MinimumUnitPrice string
+	AverageUnitPrice string
+	TotalQuantity    uint32
+	TotalSaved       string
+}
+
 type DisplayInvoiceSummary struct {
 	TotalSpent        string
 	TotalSaved        string
 	TotalItemsOrdered uint64
 	TotalOrders       uint64
 	TemplateName      string
-	ImportantItems    map[string]DisplayImportantItem
-}
-
-type DisplayImportantItem struct {
-	Names            []string
-	TotalSpent       string
-	MaximumUnitPrice string
-	MinimumUnitPrice string
-	AverageSpent     string
-	AverageUnitPrice string
-	TotalQuantity    uint32
-	TotalSaved       string
 }
 
 func (invoiceSummary DisplayInvoiceSummary) GetTemplateDisplayName() string {
@@ -35,20 +33,19 @@ func (invoiceSummary DisplayInvoiceSummary) GetTemplateData() interface{} {
 func GetDisplayInvoiceSummary(totalSpent string,
 	totalSaved string,
 	totalItemsOrdered uint64,
-	totalOrders uint64,
-	importantItems map[string]DisplayImportantItem) DisplayTemplate {
+	totalOrders uint64) DisplayTemplate {
 	return DisplayInvoiceSummary{
 		TotalSpent:        totalSpent,
 		TotalSaved:        totalSaved,
 		TotalItemsOrdered: totalItemsOrdered,
 		TotalOrders:       totalOrders,
-		ImportantItems:    importantItems,
 		TemplateName:      "DisplayInvoiceSummary"}
 }
 
 type DisplayInvoiceList struct {
-	Invoices     []Invoice
-	TemplateName string
+	Invoices       []Invoice
+	ImportantItems map[string]DisplayImportantItem
+	TemplateName   string
 }
 
 func (invoiceList DisplayInvoiceList) GetTemplateDisplayName() string {
