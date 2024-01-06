@@ -16,7 +16,7 @@ import (
 	"parser60/authentication"
 	"parser60/emailparsing"
 	"parser60/schema"
-	webserver "parser60/web/web_server"
+	webserver "parser60/web"
 
 	"google.golang.org/api/gmail/v1"
 )
@@ -28,7 +28,7 @@ const userLabelType = "user"
 func main() {
 	// messageBodies := readMessageBodiesFromGoogle(true)
 	messageBodies := readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
-	invoices :=getInvoices(messageBodies)
+	invoices := getInvoices(messageBodies)
 
 	webserver.SetupHttpServer(invoices)
 }

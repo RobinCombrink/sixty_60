@@ -1,6 +1,7 @@
-package webserver
+package web
 
 import (
+	"context"
 	"net/http"
 	"parser60/format"
 	"parser60/schema"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/exp/maps"
@@ -45,8 +47,19 @@ func setupRoutes(instance *echo.Echo) {
 	instance.GET("/invoices", getInvoices)
 	instance.GET("/summary", getSummary)
 	instance.POST("/summary/filter", postSummaryFilter)
-	instance.DELETE("/summary/important_items/delete/{importantItemName}", deleteImportantItem)
+	instance.GET("/summary/important", getImportantItems)
+	instance.POST("/important/filter", postImportantItemsFilter)
+	instance.DELETE("/summary/important/delete/{importantItemName}", deleteImportantItem)
 }
+
+func getImportantItems(c echo.Context) error {
+	return render(c, http.StatusOK, home("abc"))
+}
+
+func postImportantItemsFilter(c echo.Context) error {
+	return c.Render(http.StatusOK, "Not Implemented yet", nil)
+}
+
 func deleteImportantItem(c echo.Context) error {
 	return c.Render(http.StatusOK, "empty", nil)
 }
@@ -176,7 +189,7 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 
 			for _, lineItem := range invoice.Items {
 				for _, importantItemFilter := range filter.ImportantItemFilters {
-					impo rtantItems = updateImportantItems(importantItems, lineItem, importantItemFilter)
+					importantItems = updateImportantItems(importantItems, lineItem, importantItemFilter)
 				}
 			}
 
@@ -191,7 +204,7 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 		format.ToRand(totalSpent),
 		format.ToRand(totalSaved),
 		totalItemsOrdered,
-		totalOrders,)
+		totalOrders)
 }
 
 func getMax(num1, num2 uint64) uint64 {
@@ -209,11 +222,22 @@ func getMin(num1, num2 uint64) uint64 {
 }
 
 func getInvoices(c echo.Context) error {
-	serverContext.Logger().Printf("Important Items Len: %v", len(importantItems))
+	// serverContext.Logger().Printf("Important Items Len: %v", len(importantItems))
 
-	var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
+	// var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
 	return c.Render(http.StatusOK, "invoices", schema.GetDisplayInvoiceList(invoices))
 }
 func getRoot(c echo.Context) error {
-	return c.Render(http.StatusOK, "home", nil)
+return	render(c, http.StatusOK, home("abc"))
+}
+
+func render(c echo.Context, status int, t templ.Component) error {
+	c.Response().Writer.WriteHeader(status)
+
+	err := t.Render(context.Background(), c.Response().Writer)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "failed to render response template")
+	}
+
+	return nil
 }
