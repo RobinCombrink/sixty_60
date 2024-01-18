@@ -4,26 +4,36 @@ import (
 	"parser60/schema"
 )
 
-templ important_items(items []DisplayImportantItem) {
-	<div id="importantItem" class="importantItem">
-		<h2>Important Items</h2>
-		for _, item := range items {
-			<div id="names" class="names">
-				for _, name := item.names {
-					<div id="{{.}}">
-						<h3>{ {.} }</h3>
-						<!-- <input type="button" hx-delete="/summary/important_items/delete/{{.}}" hx-boost="true" hx-trigger="click" value="remove"> -->
+templ importantItemsBody(items []schema.DisplayImportantItem) {
+		<div class="content">
+			<div id="importantItem" class="importantItem">
+				<h2>Important Items</h2>
+				for _, item := range items {
+					<div id="names" class="names">
+						for _, name := range item.Names {
+							// <div id="{.}">
+							<h3>{ name }</h3>
+							<!-- <input type="button" hx-delete="/summary/important_items/delete/{{.}}" hx-boost="true" hx-trigger="click" value="remove"> -->
+							// </div>
+						}
 					</div>
 				}
-			</div>
-		}
-		<ul>
-			<li>MaximumUnitPrice: items</li>
-			<li>MinimumUnitPrice: </li>
-			<li>TotalSpent: </li>
-			<li>TotalQuantity:</li>
-			<li>TotalSaved: </li>
-			<li>AverageSpent:</li>
-		</ul>
-	</div>
+				// <ul>
+				// 	<li>MaximumUnitPrice: items.</li>
+				// 	<li>MinimumUnitPrice: </li>
+				// 	<li>TotalSpent: </li>
+				// 	<li>TotalQuantity:</li>
+				// 	<li>TotalSaved: </li>
+				// 	<li>AverageSpent:</li>
+				// </ul>
+			</div>y
+		</div>
+}
+
+templ createImportantItemsPage(items []schema.DisplayImportantItem) {
+	<html>
+		@headerComponent("Important Items")
+		@contentComponent(importantItemsBody(items))
+		@footerComponent()
+	</html>
 }

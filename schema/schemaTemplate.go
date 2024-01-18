@@ -61,3 +61,17 @@ func GetDisplayInvoiceList(invoices []Invoice) DisplayTemplate {
 		Invoices:     invoices,
 		TemplateName: "DisplayInvoiceList"}
 }
+
+type Page struct {
+	Title string
+	Url   string
+}
+
+func  GetPageList() []Page{
+	pages := make([]Page, 5)
+	pages = append(pages, Page{
+		Title: "test",
+		Url:   "../home",
+	})
+	return pages
+}

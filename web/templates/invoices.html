@@ -25,13 +25,6 @@
 {{ end }}
 
 {{ define "invoices" }}
-{{template "header"}}
-{{ template "topnav"}}
-{{ template "header" }}
-
-{{ template "importantItemsContent" .}}
-
 
 {{ template "invoicesList" .}}
-{{ template "footer"}}
 {{ end }}

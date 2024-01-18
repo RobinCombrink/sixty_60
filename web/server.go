@@ -47,14 +47,18 @@ func setupRoutes(instance *echo.Echo) {
 	instance.GET("/invoices", getInvoices)
 	instance.GET("/summary", getSummary)
 	instance.POST("/summary/filter", postSummaryFilter)
-	instance.GET("/summary/important", getImportantItems)
+	// instance.GET("/summary/important", getImportantItems)
 	instance.POST("/important/filter", postImportantItemsFilter)
 	instance.DELETE("/summary/important/delete/{importantItemName}", deleteImportantItem)
 }
 
-func getImportantItems(c echo.Context) error {
-	return render(c, http.StatusOK, home("abc"))
-}
+// func getImportantItems(c echo.Context) error {
+
+// 	importantItems:= make([] schema.ImportantItem, 1)
+// 	importantItems = append(importantItems, schema.ImportantItem{})
+// 	displayImportantItems := createDisplayImportantItems();
+// 	return render(c, http.StatusOK, createImportantItemsPage())
+// }
 
 func postImportantItemsFilter(c echo.Context) error {
 	return c.Render(http.StatusOK, "Not Implemented yet", nil)
@@ -86,7 +90,7 @@ func postSummaryFilter(c echo.Context) error {
 	importantItemFilters := make([]schema.ImportantItemFilter, 1)
 	importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: searchText, Contains: contains})
 	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return c.Render(http.StatusOK, "invoicesSummary", displayInvoiceSummary)
+	return render(c, http.StatusOK, createInvoiceSummaryPage(startDateStr, displayInvoiceSummary))
 }
 func getSummary(c echo.Context) error {
 	serverContext = c
@@ -103,7 +107,7 @@ func getSummary(c echo.Context) error {
 	// cheeseWhitelist = append(cheeseWhitelist, "Lancewood Cheddar Cheese Pack 900g")
 	// importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: "Cheese", Contains: true})
 	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return c.Render(http.StatusOK, "summary", displayInvoiceSummary)
+	return render(c, http.StatusOK, createInvoiceSummaryPage(startDate.Format(dateLayout), displayInvoiceSummary))
 }
 
 func calculateInvoice(invoice schema.Invoice, filter schema.Filter) (uint64, uint64, uint64) {
@@ -174,7 +178,7 @@ func createDisplayImportantItems(importantItems map[string]schema.ImportantItem)
 	return importantItemsDisplay
 }
 
-func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schema.DisplayTemplate {
+func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schema.DisplayInvoiceSummary {
 	var totalSpent uint64 = 0
 	var totalSaved uint64 = 0
 	var totalItemsOrdered uint64 = 0
@@ -200,11 +204,11 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 		}
 	}
 
-	return schema.GetDisplayInvoiceSummary(
-		format.ToRand(totalSpent),
-		format.ToRand(totalSaved),
-		totalItemsOrdered,
-		totalOrders)
+	return schema.DisplayInvoiceSummary{
+		TotalSpent:        format.ToRand(totalSpent),
+		TotalSaved:        format.ToRand(totalSaved),
+		TotalItemsOrdered: totalItemsOrdered,
+		TotalOrders:       totalOrders}
 }
 
 func getMax(num1, num2 uint64) uint64 {
@@ -228,7 +232,7 @@ func getInvoices(c echo.Context) error {
 	return c.Render(http.StatusOK, "invoices", schema.GetDisplayInvoiceList(invoices))
 }
 func getRoot(c echo.Context) error {
-return	render(c, http.StatusOK, home("abc"))
+	return render(c, http.StatusOK, createHomePage(schema.GetPageList()))
 }
 
 func render(c echo.Context, status int, t templ.Component) error {
