@@ -16,7 +16,7 @@ import (
 	"parser60/authentication"
 	"parser60/emailparsing"
 	"parser60/schema"
-	webserver "parser60/web"
+	webserver "parser60/web/server"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/api/gmail/v1"

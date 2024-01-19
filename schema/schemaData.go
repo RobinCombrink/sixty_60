@@ -10,6 +10,19 @@ type Invoice struct {
 	XtraSavings uint64
 	Date        time.Time
 }
+
+func (invoice Invoice) CalculateInvoice(filter Filter) (uint64, uint64, uint64) {
+	var invoiceTotal uint64 = 0
+	var invoiceSaved uint64 = 0
+	var invoiceItemsOrdered uint64 = 0
+	for _, lineItem := range invoice.Items {
+		invoiceTotal += lineItem.Total
+		invoiceSaved += lineItem.Discount
+		invoiceItemsOrdered += 1
+	}
+	return invoiceTotal, invoiceSaved, invoiceItemsOrdered
+}
+
 type LineItem struct {
 	Name     string
 	Quantity uint32

@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"parser60/web"
+	webserver "parser60/web/server"
 
 	"github.com/pkg/browser"
 	"golang.org/x/oauth2"
@@ -34,7 +34,7 @@ func getClient(config *oauth2.Config) *http.Client {
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	authCode := make(chan string)     // create a channel to receive the auth code
-	go web.SetupOAuthServer(authCode) // start the server in a goroutine
+	go webserver.SetupOAuthServer(authCode) // start the server in a goroutine
 
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	browser.OpenURL(authURL)

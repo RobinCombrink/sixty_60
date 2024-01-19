@@ -1,4 +1,4 @@
-package web
+package server
 
 import (
 	"context"
@@ -141,18 +141,6 @@ func getSummary(c echo.Context) error {
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary))
 }
 
-func calculateInvoice(invoice schema.Invoice, filter schema.Filter) (uint64, uint64, uint64) {
-	var invoiceTotal uint64 = 0
-	var invoiceSaved uint64 = 0
-	var invoiceItemsOrdered uint64 = 0
-	for _, lineItem := range invoice.Items {
-		invoiceTotal += lineItem.Total
-		invoiceSaved += lineItem.Discount
-		invoiceItemsOrdered += 1
-	}
-	return invoiceTotal, invoiceSaved, invoiceItemsOrdered
-}
-
 func updateImportantItems(importantItems map[string]schema.ImportantItem, lineItem schema.LineItem, importantItemFilter schema.ImportantItemFilter) map[string]schema.ImportantItem {
 	if importantItemFilter.Contains {
 		if strings.Contains(lineItem.Name, importantItemFilter.Name) {
@@ -220,7 +208,7 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 	for _, invoice := range invoices {
 		if filter.StartDate.IsZero() || (invoice.Date.After(filter.StartDate) && invoice.Date.Before(filter.EndDate)) {
 
-			invoiceTotal, invoiceSaved, invoiceItemsOrdered := calculateInvoice(invoice, filter)
+			invoiceTotal, invoiceSaved, invoiceItemsOrdered := invoice.CalculateInvoice(filter)
 
 			for _, lineItem := range invoice.Items {
 				for _, importantItemFilter := range filter.ImportantItemFilters {
