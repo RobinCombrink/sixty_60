@@ -26,8 +26,9 @@ const labelName = "Shopping/Sixty60"
 const userLabelType = "user"
 
 func main() {
-	// messageBodies := readMessageBodiesFromGoogle(true)
-	messageBodies := readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
+	
+	messageBodies := readMessageBodiesFromGoogle(true)
+	// messageBodies := readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
 	invoices := getInvoices(messageBodies)
 
 	webserver.SetupHttpServer(invoices)

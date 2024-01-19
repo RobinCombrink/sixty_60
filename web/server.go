@@ -24,6 +24,34 @@ var invoices []schema.Invoice
 var serverContext echo.Context
 var blacklist []string
 
+func SetupOAuthServer(result chan<- string) {
+	println("Setting up OAuth Server")
+	echoInstance := echo.New()
+
+	echoInstance.Pre(middleware.RemoveTrailingSlash())
+
+	echoInstance.Use(middleware.Logger())
+	echoInstance.Use(middleware.Recover())
+
+	setupAuthRoutes(echoInstance, result)
+	echoInstance.Logger.Fatal(echoInstance.Start(serverIp + ":42069"))
+}
+
+func setupAuthRoutes(authInstance *echo.Echo, result chan<- string) {
+	authInstance.GET("/", func(c echo.Context) error {
+		return getAuthRoot(c, result)
+	})
+}
+
+func getAuthRoot(c echo.Context, result chan<- string) error {
+	code := c.QueryParam("code")
+	go func() {
+		result <- code
+	}()
+
+	return render(c, http.StatusOK, createAuthPage())
+}
+
 /*
 Starts echo HTTP server and blocks the current thread
 */

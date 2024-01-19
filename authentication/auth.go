@@ -1,4 +1,5 @@
 package authentication
+
 import (
 	"context"
 	"encoding/json"
@@ -6,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"parser60/web"
 
+	"github.com/pkg/browser"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
@@ -21,26 +24,28 @@ func getClient(config *oauth2.Config) *http.Client {
 	tokFile := "secrets/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
-			tok = getTokenFromWeb(config)
-			saveToken(tokFile, tok)
+		tok = getTokenFromWeb(config)
+		saveToken(tokFile, tok)
 	}
 	return config.Client(context.Background(), tok)
 }
 
 // Request a token from the web, then returns the retrieved token.
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
+
+	authCode := make(chan string)     // create a channel to receive the auth code
+	go web.SetupOAuthServer(authCode) // start the server in a goroutine
+
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the following link in your browser then type the "+
-			"authorization code: \n%v\n", authURL)
+	browser.OpenURL(authURL)
 
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-			log.Fatalf("Unable to read authorization code: %v", err)
-	}
+	// Receive the auth code from the channel (this will block until the auth code is available)
+	code := <-authCode
 
-	tok, err := config.Exchange(context.TODO(), authCode)
+	tok, err := config.Exchange(context.TODO(), code)
+
 	if err != nil {
-			log.Fatalf("Unable to retrieve token from web: %v", err)
+		log.Fatalf("Unable to retrieve token from web: %v", err)
 	}
 	return tok
 }
@@ -49,7 +54,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 func tokenFromFile(file string) (*oauth2.Token, error) {
 	f, err := os.Open(file)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 	defer f.Close()
 	tok := &oauth2.Token{}
@@ -62,7 +67,7 @@ func saveToken(path string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-			log.Fatalf("Unable to cache oauth token: %v", err)
+		log.Fatalf("Unable to cache oauth token: %v", err)
 	}
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
@@ -72,19 +77,19 @@ func Authenticate() *gmail.Service {
 	ctx := context.Background()
 	b, err := os.ReadFile("secrets/credentials.json")
 	if err != nil {
-			log.Fatalf("Unable to read client secret file: %v", err)
+		log.Fatalf("Unable to read client secret file: %v", err)
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 	if err != nil {
-			log.Fatalf("Unable to parse client secret file to config: %v", err)
+		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
 
 	service, err := gmail.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
-			log.Fatalf("Unable to retrieve Gmail client: %v", err)
+		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 	return service
 }
