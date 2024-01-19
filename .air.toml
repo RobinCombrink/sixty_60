@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "tmp\\main.exe"
-  cmd = "templ generate && go build -o ./tmp/main.exe ."
+  cmd = "templ generate -keep-orphaned-files && go build -o ./tmp/main.exe ."
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata", "secrets"]
   exclude_file = []
