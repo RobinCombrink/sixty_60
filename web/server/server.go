@@ -83,21 +83,40 @@ func setupRoutes(instance *echo.Echo) {
 	instance.DELETE("/summary/important/delete/{importantItemName}", deleteImportantItem)
 }
 
+func getRoot(c echo.Context) error {
+	return render(c, http.StatusOK, genericTemplates.CreateHomePage(schema.GetPageList()))
+}
+func getInvoices(c echo.Context) error {
+	// serverContext.Logger().Printf("Important Items Len: %v", len(importantItems))
+
+	// var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesListPage(schema.GetDisplayInvoiceList(invoices).Invoices))
+}
+func getSummary(c echo.Context) error {
+	serverContext = c
+	t := time.Now()
+
+	startDate := time.Date(t.Year(), time.January, 0, 0, 0, 0, 0, t.Location())
+	endDate := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+
+	importantItemFilters := make([]schema.ImportantItemFilter, 5)
+
+	// cheeseWhitelist := make([]string, 3)
+	// cheeseWhitelist = append(cheeseWhitelist, "Parmalat Cheddar Cheese Pack 400g")
+	// cheeseWhitelist = append(cheeseWhitelist, "Ladismith Cheddar Cheese Pack 800g")
+	// cheeseWhitelist = append(cheeseWhitelist, "Lancewood Cheddar Cheese Pack 900g")
+	// importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: "Cheese", Contains: true})
+	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary))
+}
+
 // func getImportantItems(c echo.Context) error {
 
-// 	importantItems:= make([] schema.ImportantItem, 1)
-// 	importantItems = append(importantItems, schema.ImportantItem{})
-// 	displayImportantItems := createDisplayImportantItems();
-// 	return render(c, http.StatusOK, createImportantItemsPage())
-// }
-
-func postImportantItemsFilter(c echo.Context) error {
-	return c.Render(http.StatusOK, "Not Implemented yet", nil)
-}
-
-func deleteImportantItem(c echo.Context) error {
-	return c.Render(http.StatusOK, "empty", nil)
-}
+//		importantItems:= make([] schema.ImportantItem, 1)
+//		importantItems = append(importantItems, schema.ImportantItem{})
+//		displayImportantItems := createDisplayImportantItems();
+//		return render(c, http.StatusOK, createImportantItemsPage())
+//	}
 func postSummaryFilter(c echo.Context) error {
 	serverContext = c
 	startDateStr := c.FormValue("startDate")
@@ -123,22 +142,13 @@ func postSummaryFilter(c echo.Context) error {
 	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDateStr, endDateStr, displayInvoiceSummary))
 }
-func getSummary(c echo.Context) error {
-	serverContext = c
-	t := time.Now()
 
-	startDate := time.Date(t.Year(), time.January, 0, 0, 0, 0, 0, t.Location())
-	endDate := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+func postImportantItemsFilter(c echo.Context) error {
+	return c.Render(http.StatusOK, "Not Implemented yet", nil)
+}
 
-	importantItemFilters := make([]schema.ImportantItemFilter, 5)
-
-	// cheeseWhitelist := make([]string, 3)
-	// cheeseWhitelist = append(cheeseWhitelist, "Parmalat Cheddar Cheese Pack 400g")
-	// cheeseWhitelist = append(cheeseWhitelist, "Ladismith Cheddar Cheese Pack 800g")
-	// cheeseWhitelist = append(cheeseWhitelist, "Lancewood Cheddar Cheese Pack 900g")
-	// importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: "Cheese", Contains: true})
-	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary))
+func deleteImportantItem(c echo.Context) error {
+	return c.Render(http.StatusOK, "empty", nil)
 }
 
 func updateImportantItems(importantItems map[string]schema.ImportantItem, lineItem schema.LineItem, importantItemFilter schema.ImportantItemFilter) map[string]schema.ImportantItem {
@@ -242,16 +252,6 @@ func getMin(num1, num2 uint64) uint64 {
 		return num2
 	}
 	return num1
-}
-
-func getInvoices(c echo.Context) error {
-	// serverContext.Logger().Printf("Important Items Len: %v", len(importantItems))
-
-	// var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
-	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesListPage(schema.GetDisplayInvoiceList(invoices).Invoices))
-}
-func getRoot(c echo.Context) error {
-	return render(c, http.StatusOK, genericTemplates.CreateHomePage(schema.GetPageList()))
 }
 
 func render(c echo.Context, status int, t templ.Component) error {
