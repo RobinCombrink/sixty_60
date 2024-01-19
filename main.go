@@ -18,6 +18,7 @@ import (
 	"parser60/schema"
 	webserver "parser60/web"
 
+	"github.com/spf13/cobra"
 	"google.golang.org/api/gmail/v1"
 )
 
@@ -26,9 +27,24 @@ const labelName = "Shopping/Sixty60"
 const userLabelType = "user"
 
 func main() {
-	
-	messageBodies := readMessageBodiesFromGoogle(true)
-	// messageBodies := readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
+	var isLocalOnly bool
+
+	var rootCmd = &cobra.Command{
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("isLocal: ", isLocalOnly)
+		},
+	}
+
+	rootCmd.Flags().BoolVarP(&isLocalOnly, "local", "l", false, "Use already downloaded data")
+
+	rootCmd.Execute()
+	var messageBodies []string
+	//TODO: The flag is swapped due to air limitations
+	if !isLocalOnly {
+		messageBodies = readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
+	} else {
+		messageBodies = readMessageBodiesFromGoogle(true)
+	}
 	invoices := getInvoices(messageBodies)
 
 	webserver.SetupHttpServer(invoices)
