@@ -7,7 +7,7 @@ import (
     "strconv"
 )
 
-templ createInvoicesListPage(invoices []schema.Invoice){
+templ CreateInvoicesListPage(invoices []schema.Invoice){
     <h1>These are your invoices</h1>
 <div>
     for _, invoice := range invoices {
@@ -26,7 +26,7 @@ templ createInvoicesListPage(invoices []schema.Invoice){
             <li>{format.ToRand (item.Price)}</li>
             <li>{format.ToRand(item.Total)}</li>
             if (item.Discount == 0) {
-            <li>{format.ToRand(item.Discount)}</li>
+                <li>{format.ToRand(item.Discount)}</li>
             }
         </ul>
     }

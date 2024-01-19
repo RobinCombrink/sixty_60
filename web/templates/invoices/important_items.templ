@@ -2,6 +2,7 @@ package web
 
 import (
 	"parser60/schema"
+	"parser60/web/templates/default"
 )
 
 templ importantItemsBody(items []schema.DisplayImportantItem) {
@@ -26,14 +27,14 @@ templ importantItemsBody(items []schema.DisplayImportantItem) {
 				// 	<li>TotalSaved: </li>
 				// 	<li>AverageSpent:</li>
 				// </ul>
-			</div>y
+			</div>
 		</div>
 }
 
-templ createImportantItemsPage(items []schema.DisplayImportantItem) {
+templ CreateImportantItemsPage(items []schema.DisplayImportantItem) {
 	<html>
-		@headerComponent("Important Items")
-		@contentComponent(importantItemsBody(items))
-		@footerComponent()
+		@web.HeaderComponent("Important Items")
+		@web.ContentComponent(importantItemsBody(items))
+		@web.FooterComponent() 
 	</html>
 }

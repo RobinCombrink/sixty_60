@@ -1,0 +1,52 @@
+package web
+
+import (
+	"parser60/schema"
+	"parser60/web/templates/default"
+	"strconv"
+)
+
+templ invoiceFilterSection(startDate string, endDate string) {
+	<h1>Invoices Summary</h1>
+	<div class="filter">
+		<h3>Filter</h3>
+		<form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true">
+			<div>
+				<input type="date" name="startDate" value={ startDate }/>
+				<input type="date" name="endDate" value={ endDate }/>
+			</div>
+			<div>
+				<input type="text" name="searchText" placeholder="Search"/>
+				<input type="checkbox" name="searchContains" value="Contains" checked="true"/>
+			</div>
+			<div>
+				<input type="submit" value="Apply"/>
+			</div>
+		</form>
+	</div>
+}
+
+templ invoicesSummarySection(invoicesSummary schema.DisplayInvoiceSummary ) {
+	<div id="invoicesSummary" class="invoicesSummary">
+		<h2>Summary</h2>
+		<ul>
+			<li>Total Spent: { invoicesSummary.TotalSpent }</li>
+			<li>Total Saved: { invoicesSummary.TotalSaved }</li>
+			<li>Total Items Ordered: { strconv.FormatUint(uint64(invoicesSummary.TotalItemsOrdered), 10) }</li>
+			<li>Total Orders: { strconv.FormatUint(uint64(invoicesSummary.TotalOrders ),10) }</li>
+		</ul>
+	</div>
+}
+
+templ CreateInvoiceSummaryPage(startDate string, endDate string, invoicesSummary schema.DisplayInvoiceSummary) {
+	<html>
+		@web.HeaderComponent("Invoices Summary")
+		<html>
+			<body>
+				@invoiceFilterSection(startDate, endDate)
+				@invoicesSummarySection(invoicesSummary)
+			</body>
+		</html>
+		@web.FooterComponent()
+	</html>
+}

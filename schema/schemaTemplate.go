@@ -1,10 +1,5 @@
 package schema
 
-type DisplayTemplate interface {
-	GetTemplateDisplayName() string
-	GetTemplateData() interface{}
-}
-
 type DisplayImportantItem struct {
 	Names            []string
 	TotalSpent       string
@@ -20,46 +15,30 @@ type DisplayInvoiceSummary struct {
 	TotalSaved        string
 	TotalItemsOrdered uint64
 	TotalOrders       uint64
-	TemplateName      string
-}
-
-func (invoiceSummary DisplayInvoiceSummary) GetTemplateDisplayName() string {
-	return invoiceSummary.TemplateName
-}
-func (invoiceSummary DisplayInvoiceSummary) GetTemplateData() interface{} {
-	return invoiceSummary
 }
 
 func GetDisplayInvoiceSummary(totalSpent string,
 	totalSaved string,
 	totalItemsOrdered uint64,
-	totalOrders uint64) DisplayTemplate {
+	totalOrders uint64) DisplayInvoiceSummary {
 	return DisplayInvoiceSummary{
 		TotalSpent:        totalSpent,
 		TotalSaved:        totalSaved,
 		TotalItemsOrdered: totalItemsOrdered,
 		TotalOrders:       totalOrders,
-		TemplateName:      "DisplayInvoiceSummary"}
+	}
 }
 
 type DisplayInvoiceList struct {
 	Invoices       []Invoice
 	ImportantItems map[string]DisplayImportantItem
-	TemplateName   string
 }
 
-func (invoiceList DisplayInvoiceList) GetTemplateDisplayName() string {
-	return invoiceList.TemplateName
-}
-
-func (invoiceList DisplayInvoiceList) GetTemplateData() interface{} {
-	return invoiceList
-}
-
-func GetDisplayInvoiceList(invoices []Invoice) DisplayTemplate {
+func GetDisplayInvoiceList(invoices []Invoice) DisplayInvoiceList {
 	return DisplayInvoiceList{
-		Invoices:     invoices,
-		TemplateName: "DisplayInvoiceList"}
+		Invoices: invoices,
+		//TODO: ImportantItems
+	}
 }
 
 type Page struct {
@@ -67,11 +46,15 @@ type Page struct {
 	Url   string
 }
 
-func  GetPageList() []Page{
+func GetPageList() []Page {
 	pages := make([]Page, 5)
 	pages = append(pages, Page{
-		Title: "test",
+		Title: "home",
 		Url:   "../home",
+	})
+	pages = append(pages, Page{
+		Title: "invoices",
+		Url:   "../invoices",
 	})
 	return pages
 }

@@ -6,6 +6,9 @@ import (
 	"parser60/format"
 	"parser60/schema"
 	"parser60/template"
+	genericTemplates "parser60/web/templates"
+	authTemplates "parser60/web/templates/auth"
+	invoiceTemplates "parser60/web/templates/invoices"
 	"path/filepath"
 	"strings"
 	"time"
@@ -49,7 +52,7 @@ func getAuthRoot(c echo.Context, result chan<- string) error {
 		result <- code
 	}()
 
-	return render(c, http.StatusOK, createAuthPage())
+	return render(c, http.StatusOK, authTemplates.CreateAuthPage())
 }
 
 /*
@@ -118,7 +121,7 @@ func postSummaryFilter(c echo.Context) error {
 	importantItemFilters := make([]schema.ImportantItemFilter, 1)
 	importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: searchText, Contains: contains})
 	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return render(c, http.StatusOK, createInvoiceSummaryPage(startDateStr, displayInvoiceSummary))
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDateStr, endDateStr, displayInvoiceSummary))
 }
 func getSummary(c echo.Context) error {
 	serverContext = c
@@ -135,7 +138,7 @@ func getSummary(c echo.Context) error {
 	// cheeseWhitelist = append(cheeseWhitelist, "Lancewood Cheddar Cheese Pack 900g")
 	// importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: "Cheese", Contains: true})
 	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return render(c, http.StatusOK, createInvoiceSummaryPage(startDate.Format(dateLayout), displayInvoiceSummary))
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary))
 }
 
 func calculateInvoice(invoice schema.Invoice, filter schema.Filter) (uint64, uint64, uint64) {
@@ -257,10 +260,10 @@ func getInvoices(c echo.Context) error {
 	// serverContext.Logger().Printf("Important Items Len: %v", len(importantItems))
 
 	// var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
-	return c.Render(http.StatusOK, "invoices", schema.GetDisplayInvoiceList(invoices))
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesListPage(schema.GetDisplayInvoiceList(invoices).Invoices))
 }
 func getRoot(c echo.Context) error {
-	return render(c, http.StatusOK, createHomePage(schema.GetPageList()))
+	return render(c, http.StatusOK, genericTemplates.CreateHomePage(schema.GetPageList()))
 }
 
 func render(c echo.Context, status int, t templ.Component) error {

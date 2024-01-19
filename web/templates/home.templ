@@ -1,0 +1,28 @@
+package web
+
+import (
+	"parser60/schema"
+	"parser60/web/templates/default"
+)
+
+
+
+templ contentPage(title string, body templ.Component) {
+	<html>
+		@web.HeaderComponent(title)
+		@web.ContentComponent(body)
+	</html>
+}
+
+templ CreateHomePage(pages []schema.Page) {
+	<html>
+		@web.HeaderComponent("Home")
+		<body>
+			for _, page := range pages {
+				<div>
+					<a href={ templ.SafeURL(page.Url) }>{ page.Title }</a>
+				</div>
+			}
+		</body>
+	</html>
+}

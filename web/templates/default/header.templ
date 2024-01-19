@@ -1,0 +1,18 @@
+package web
+
+templ HeaderComponent(title string) {
+	<head>
+		<script src="https://unpkg.com/htmx.org@1.9.2"></script>
+		<title>
+			{ title }
+		</title>
+	</head>
+}
+
+templ ContentComponent(body templ.Component) {
+	<body>
+		<div class="content">
+			@body
+		</div>
+	</body>
+}
