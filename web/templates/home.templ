@@ -5,8 +5,6 @@ import (
 	"parser60/web/templates/default"
 )
 
-
-
 templ contentPage(title string, body templ.Component) {
 	<html>
 		@web.HeaderComponent(title)
@@ -18,11 +16,10 @@ templ CreateHomePage(pages []schema.Page) {
 	<html>
 		@web.HeaderComponent("Home")
 		<body>
-			for _, page := range pages {
-				<div>
-					<a href={ templ.SafeURL(page.Url) }>{ page.Title }</a>
-				</div>
-			}
+			@web.TopnavComponent(pages)
+			<div>
+				<h1>This is the home page</h1>
+			</div>
 		</body>
 	</html>
 }

@@ -1,10 +1,13 @@
 package web
 
-templ topnav(){
-    <div class="topnav">
-        <a href="/">Home</a>
-        <a href="/invoices">Invoice List</a>
-        <a href="/summary">Summary</a>
-        <!-- <a href="#about">About</a> -->
-    </div>
+import (
+	"parser60/schema"
+)
+
+templ TopnavComponent(pages []schema.Page) {
+	<div class="topnav">
+		for _, page := range pages {
+			<a href={ templ.SafeURL(page.Url) }>{ page.Title }</a>
+		}
+	</div>
 }

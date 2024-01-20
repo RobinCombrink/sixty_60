@@ -56,5 +56,9 @@ func GetPageList() []Page {
 		Title: "invoices",
 		Url:   "../invoices",
 	})
+	pages = append(pages, Page{
+		Title: "summary",
+		Url:   "../summary",
+	})
 	return pages
 }

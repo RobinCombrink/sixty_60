@@ -43,6 +43,7 @@ templ CreateInvoiceSummaryPage(startDate string, endDate string, invoicesSummary
 		@web.HeaderComponent("Invoices Summary")
 		<html>
 			<body>
+				@web.TopnavComponent(schema.GetPageList())
 				@invoiceFilterSection(startDate, endDate)
 				@invoicesSummarySection(invoicesSummary)
 			</body>

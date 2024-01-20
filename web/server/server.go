@@ -139,6 +139,7 @@ func postSummaryFilter(c echo.Context) error {
 	}
 	importantItemFilters := make([]schema.ImportantItemFilter, 1)
 	importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: searchText, Contains: contains})
+	
 	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDateStr, endDateStr, displayInvoiceSummary))
 }

@@ -2,35 +2,39 @@ package web
 
 import (
 	"parser60/schema"
-    "parser60/format"
+	"parser60/format"
 
-    "strconv"
+	"strconv"
+	"parser60/web/templates/default"
 )
 
-templ CreateInvoicesListPage(invoices []schema.Invoice){
-    <h1>These are your invoices</h1>
-<div>
-    for _, invoice := range invoices {
-    <div>
-        <h2>Order on {format.ToReadableDate(invoice.Date)}</h2>
-    </div>
-    <div>XtraSavings: {format.ToRand (invoice.XtraSavings)}</div>
-    <div>Delivery Fee: {format.ToRand (invoice.DeliveryFee)}</div>
-
-    <h3>Line Items</h3>
-    <div>
-        for _, item := range invoice.Items {
-        <h4>{item.Name}</h4>
-        <ul>
-            <li>{strconv.FormatUint(uint64(item.Quantity), 10)}</li>
-            <li>{format.ToRand (item.Price)}</li>
-            <li>{format.ToRand(item.Total)}</li>
-            if (item.Discount == 0) {
-                <li>{format.ToRand(item.Discount)}</li>
-            }
-        </ul>
-    }
-    </div>
-    }
-</div>
+templ CreateInvoicesListPage(invoices []schema.Invoice) {
+	@web.HeaderComponent("Invoices")
+	<body>
+		@web.TopnavComponent(schema.GetPageList())
+		<h1>These are your invoices</h1>
+		<div>
+			for _, invoice := range invoices {
+				<div>
+					<h2>Order on { format.ToReadableDate(invoice.Date) }</h2>
+				</div>
+				<div>XtraSavings: { format.ToRand (invoice.XtraSavings) }</div>
+				<div>Delivery Fee: { format.ToRand (invoice.DeliveryFee) }</div>
+				<h3>Line Items</h3>
+				<div>
+					for _, item := range invoice.Items {
+						<h4>{ item.Name }</h4>
+						<ul>
+							<li>{ strconv.FormatUint(uint64(item.Quantity), 10) }</li>
+							<li>{ format.ToRand (item.Price) }</li>
+							<li>{ format.ToRand(item.Total) }</li>
+							if (item.Discount == 0) {
+								<li>{ format.ToRand(item.Discount) }</li>
+							}
+						</ul>
+					}
+				</div>
+			}
+		</div>
+	</body>
 }
