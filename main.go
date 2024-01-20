@@ -1,8 +1,6 @@
 package main
 
 import (
-	// "encoding/base64"
-	// "bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -10,9 +8,6 @@ import (
 	"os"
 	"path/filepath"
 
-	// "os"
-
-	// "parser60/authentication"
 	"parser60/authentication"
 	"parser60/database"
 	webserver "parser60/web/server"
@@ -44,6 +39,7 @@ func main() {
 	} else {
 		messageBodies = readMessageBodiesFromGoogle(true)
 	}
+
 	database.AddInvoices(messageBodies)
 
 	webserver.SetupHttpServer()

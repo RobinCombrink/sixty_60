@@ -7,29 +7,61 @@ import (
 
 templ importantItemsBody(items []schema.DisplayImportantItem) {
 	@web.TopnavComponent(schema.GetPageList())
-	<div class="content">
-		<div id="importantItem" class="importantItem">
-			<h2>Important Items</h2>
-			for _, item := range items {
-				<div id="names" class="names">
-					for _, name := range item.Names {
-						// <div id="{.}">
-						<h3>{ name }</h3>
-						<!-- <input type="button" hx-delete="/summary/important_items/delete/{{.}}" hx-boost="true" hx-trigger="click" value="remove"> -->
-						// </div>
-					}
-				</div>
-			}
-			// <ul>
-			// 	<li>MaximumUnitPrice: items.</li>
-			// 	<li>MinimumUnitPrice: </li>
-			// 	<li>TotalSpent: </li>
-			// 	<li>TotalQuantity:</li>
-			// 	<li>TotalSaved: </li>
-			// 	<li>AverageSpent:</li>
-			// </ul>
-		</div>
+	<div id="importantItem" class="importantItem">
+		<h2>Important Items</h2>
+		for _, item := range items {
+			<div id="names" class="names">
+				for _, name := range item.Names {
+					// <div id="{.}">
+					<h3>{ name }</h3>
+					<!-- <input type="button" hx-delete="/summary/important_items/delete/{{.}}" hx-boost="true" hx-trigger="click" value="remove"> -->
+					// </div>
+				}
+			</div>
+		}
+		// <ul>
+		// 	<li>MaximumUnitPrice: items.</li>
+		// 	<li>MinimumUnitPrice: </li>
+		// 	<li>TotalSpent: </li>
+		// 	<li>TotalQuantity:</li>
+		// 	<li>TotalSaved: </li>
+		// 	<li>AverageSpent:</li>
+		// </ul>
 	</div>
+}
+
+templ importantItem(item schema.DisplayImportantItem) {
+}
+
+templ importantItemList(items []schema.DisplayImportantItem) {
+	<div class="importantItemList">
+		for _, item := range items {
+			<div id="importantItem" class="importantItem">
+				for _, item := range items {
+					<div id="names" class="names">
+						for _, name := range item.Names {
+							<div id={ name }>
+								<h3>{ name }</h3>
+								<input type="button" hx-delete="/summary/important_items/delete/{}" hx-boost="true" hx-trigger="click" value="remove"/>
+							</div>
+						}
+					</div>
+				}
+				<ul>
+					<li>MaximumUnitPrice: { item.MaximumUnitPrice }</li>
+					<li>MinimumUnitPrice: { item.MaximumUnitPrice }</li>
+					<li>TotalSpent:{ item.TotalSpent } </li>
+					<li>TotalQuantity:{ item.TotalQuantity }</li>
+					<li>TotalSaved: { item.TotalSaved }</li>
+					// <li>AverageSpent:{ item.AverageSpent }</li>
+				</ul>
+			</div>
+		}
+	</div>
+}
+
+templ CreateImportantItemsList(items []schema.DisplayImportantItem) {
+	@web.ContentComponent(importantItemList(items))
 }
 
 templ CreateImportantItemsPage(items []schema.DisplayImportantItem) {

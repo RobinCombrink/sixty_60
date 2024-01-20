@@ -6,7 +6,7 @@ type DisplayImportantItem struct {
 	MaximumUnitPrice string
 	MinimumUnitPrice string
 	AverageUnitPrice string
-	TotalQuantity    uint32
+	TotalQuantity    string
 	TotalSaved       string
 }
 

@@ -38,7 +38,7 @@ templ CreateInvoicesSummarySection(invoicesSummary schema.DisplayInvoiceSummary 
 	</div>
 }
 
-templ CreateInvoiceSummaryPage(startDate string, endDate string, invoicesSummary schema.DisplayInvoiceSummary) {
+templ CreateInvoiceSummaryPage(startDate string, endDate string, invoicesSummary schema.DisplayInvoiceSummary, items []schema.DisplayImportantItem) {
 	<html>
 		@web.HeaderComponent("Invoices Summary")
 		<html>
@@ -46,6 +46,8 @@ templ CreateInvoiceSummaryPage(startDate string, endDate string, invoicesSummary
 				@web.TopnavComponent(schema.GetPageList())
 				@invoiceFilterSection(startDate, endDate)
 				@CreateInvoicesSummarySection(invoicesSummary)
+				<h2>Important Items</h2>
+				@importantItemList(items)
 			</body>
 		</html>
 		@web.FooterComponent()

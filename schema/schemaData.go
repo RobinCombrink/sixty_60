@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -11,7 +13,7 @@ type Invoice struct {
 	Date        time.Time
 }
 
-func (invoice Invoice) CalculateItemTotals(filter Filter) (uint64, uint64, uint64) {
+func (invoice Invoice) CalculateItemTotals() (uint64, uint64, uint64) {
 	var invoiceTotal uint64 = 0
 	var invoiceSaved uint64 = 0
 	var invoiceItemsOrdered uint64 = 0
@@ -44,4 +46,30 @@ type ImportantItem struct {
 	TotalQuantity    uint32
 }
 
+func (i ImportantItem) ToDisplay() DisplayImportantItem {
+	var names []string
+	for name := range i.Names {
+		names = append(names, name)
+	}
+
+	averageUnitPrice := "0"
+	if i.TotalQuantity != 0 {
+		averageUnitPrice = fmt.Sprintf("%.2f", float64(i.TotalSpent)/float64(i.TotalQuantity))
+	}
+
+	return DisplayImportantItem{
+		Names:            names,
+		TotalSpent:       strconv.FormatUint(i.TotalSpent, 10),
+		MaximumUnitPrice: strconv.FormatUint(i.MaximumUnitPrice, 10),
+		MinimumUnitPrice: strconv.FormatUint(i.MinimumUnitPrice, 10),
+		AverageUnitPrice: averageUnitPrice,
+		TotalQuantity:    strconv.FormatUint(uint64(i.TotalQuantity), 10),
+		TotalSaved:       strconv.FormatUint(i.TotalSaved, 10),
+	}
+}
+
 type Void struct{}
+
+type Display[T any] interface {
+	ToDisplay() T
+}

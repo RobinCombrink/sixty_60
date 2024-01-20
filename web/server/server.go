@@ -12,6 +12,7 @@ import (
 	authTemplates "parser60/web/templates/auth"
 	invoiceTemplates "parser60/web/templates/invoices"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -96,7 +97,9 @@ func getSummary(c echo.Context) error {
 	serverContext = c
 	t := time.Now()
 
-	startDate := time.Date(t.Year(), time.January, 0, 0, 0, 0, 0, t.Location())
+	//TODO: Timezones :)
+	//The hour is "14" because if it's 0 then it will drop back a day because of timezones
+	startDate := time.Date(t.Year()-1, time.January, 14, 0, 0, 0, 0, t.Location())
 	endDate := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 
 	importantItemFilters := make([]schema.ImportantItemFilter, 5)
@@ -106,8 +109,13 @@ func getSummary(c echo.Context) error {
 	// cheeseWhitelist = append(cheeseWhitelist, "Ladismith Cheddar Cheese Pack 800g")
 	// cheeseWhitelist = append(cheeseWhitelist, "Lancewood Cheddar Cheese Pack 900g")
 	// importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: "Cheese", Contains: true})
-	displayInvoiceSummary := createInvoiceSummary(database.GetInvoices(), schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary))
+
+	dateFilter := schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters}
+
+	fmt.Println("\n", dateFilter, "\n")
+
+	displayInvoiceSummary, displayImportantItems := createInvoiceSummary(database.GetInvoices(), dateFilter)
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary, displayImportantItems))
 }
 
 // func getImportantItems(c echo.Context) error {
@@ -151,7 +159,7 @@ func postSummaryFilter(c echo.Context) error {
 
 	fmt.Println("\n", dateFilter, "\n")
 
-	displayInvoiceSummary := createInvoiceSummary(database.GetInvoices(), dateFilter)
+	displayInvoiceSummary, _ := createInvoiceSummary(database.GetInvoices(), dateFilter)
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesSummarySection(displayInvoiceSummary))
 }
 
@@ -209,7 +217,7 @@ func createDisplayImportantItems(importantItems map[string]schema.ImportantItem)
 		importantItemsDisplay[key] = schema.DisplayImportantItem{
 			Names:            maps.Keys(importantItem.Names),
 			TotalSpent:       format.ToRand(importantItem.TotalSpent),
-			TotalQuantity:    importantItem.TotalQuantity,
+			TotalQuantity:    strconv.FormatUint(uint64(importantItem.TotalQuantity), 10),
 			TotalSaved:       format.ToRand(importantItem.TotalSaved),
 			MaximumUnitPrice: format.ToRand(importantItem.MaximumUnitPrice),
 			MinimumUnitPrice: format.ToRand(importantItem.MinimumUnitPrice),
@@ -219,7 +227,7 @@ func createDisplayImportantItems(importantItems map[string]schema.ImportantItem)
 	return importantItemsDisplay
 }
 
-func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schema.DisplayInvoiceSummary {
+func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) (schema.DisplayInvoiceSummary, []schema.DisplayImportantItem) {
 	var totalSpent uint64 = 0
 	var totalSaved uint64 = 0
 	var totalItemsOrdered uint64 = 0
@@ -230,7 +238,7 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 	for _, invoice := range invoices {
 		if invoice.MatchesFilter(filter) {
 
-			invoiceTotal, invoiceSaved, invoiceItemsOrdered := invoice.CalculateItemTotals(filter)
+			invoiceTotal, invoiceSaved, invoiceItemsOrdered := invoice.CalculateItemTotals()
 
 			for _, lineItem := range invoice.Items {
 				for _, importantItemFilter := range filter.ImportantItemFilters {
@@ -245,11 +253,18 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 		}
 	}
 
-	return schema.DisplayInvoiceSummary{
+	var importantItemsDisplays []schema.DisplayImportantItem = make([]schema.DisplayImportantItem, len(filter.ImportantItemFilters))
+
+	for _, importantItem := range importantItems {
+		importantItemsDisplays = append(importantItemsDisplays, importantItem.ToDisplay())
+	}
+
+	displayInvoiceSummary := schema.DisplayInvoiceSummary{
 		TotalSpent:        format.ToRand(totalSpent),
 		TotalSaved:        format.ToRand(totalSaved),
 		TotalItemsOrdered: totalItemsOrdered,
 		TotalOrders:       totalOrders}
+	return displayInvoiceSummary, importantItemsDisplays
 }
 
 func getMax(num1, num2 uint64) uint64 {
