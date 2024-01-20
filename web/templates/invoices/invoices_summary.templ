@@ -10,14 +10,14 @@ templ invoiceFilterSection(startDate string, endDate string) {
 	<h1>Invoices Summary</h1>
 	<div class="filter">
 		<h3>Filter</h3>
-		<form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap-oob="true">
+		<form hx-post="/summary/filter" hx-target="#invoicesSummary" hx-swap="outerHTML">
 			<div>
 				<input type="date" name="startDate" value={ startDate }/>
 				<input type="date" name="endDate" value={ endDate }/>
 			</div>
 			<div>
 				<input type="text" name="searchText" placeholder="Search"/>
-				<input type="checkbox" name="searchContains" value="Contains" checked="true"/>
+				<input type="checkbox" name="searchContains" checked="true"/>
 			</div>
 			<div>
 				<input type="submit" value="Apply"/>
@@ -26,7 +26,7 @@ templ invoiceFilterSection(startDate string, endDate string) {
 	</div>
 }
 
-templ invoicesSummarySection(invoicesSummary schema.DisplayInvoiceSummary ) {
+templ CreateInvoicesSummarySection(invoicesSummary schema.DisplayInvoiceSummary ) {
 	<div id="invoicesSummary" class="invoicesSummary">
 		<h2>Summary</h2>
 		<ul>
@@ -45,7 +45,7 @@ templ CreateInvoiceSummaryPage(startDate string, endDate string, invoicesSummary
 			<body>
 				@web.TopnavComponent(schema.GetPageList())
 				@invoiceFilterSection(startDate, endDate)
-				@invoicesSummarySection(invoicesSummary)
+				@CreateInvoicesSummarySection(invoicesSummary)
 			</body>
 		</html>
 		@web.FooterComponent()

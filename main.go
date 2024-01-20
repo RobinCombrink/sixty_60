@@ -14,8 +14,7 @@ import (
 
 	// "parser60/authentication"
 	"parser60/authentication"
-	"parser60/emailparsing"
-	"parser60/schema"
+	"parser60/database"
 	webserver "parser60/web/server"
 
 	"github.com/spf13/cobra"
@@ -45,18 +44,9 @@ func main() {
 	} else {
 		messageBodies = readMessageBodiesFromGoogle(true)
 	}
-	invoices := getInvoices(messageBodies)
+	database.AddInvoices(messageBodies)
 
-	webserver.SetupHttpServer(invoices)
-}
-
-func getInvoices(messageBodies []string) (invoices []schema.Invoice) {
-	for _, messageBody := range messageBodies {
-		invoice := emailparsing.GetInvoiceFromHtml(string(messageBody))
-
-		invoices = append(invoices, *invoice)
-	}
-	return invoices
+	webserver.SetupHttpServer()
 }
 
 func readMessageBodiesFromLocal(messageDirectory string) (messageBodies []string) {

@@ -11,7 +11,7 @@ type Invoice struct {
 	Date        time.Time
 }
 
-func (invoice Invoice) CalculateInvoice(filter Filter) (uint64, uint64, uint64) {
+func (invoice Invoice) CalculateItemTotals(filter Filter) (uint64, uint64, uint64) {
 	var invoiceTotal uint64 = 0
 	var invoiceSaved uint64 = 0
 	var invoiceItemsOrdered uint64 = 0
@@ -21,6 +21,10 @@ func (invoice Invoice) CalculateInvoice(filter Filter) (uint64, uint64, uint64) 
 		invoiceItemsOrdered += 1
 	}
 	return invoiceTotal, invoiceSaved, invoiceItemsOrdered
+}
+
+func (invoice Invoice) MatchesFilter(filter Filter) bool {
+	return filter.StartDate.IsZero() || (invoice.Date.After(filter.StartDate) && invoice.Date.Before(filter.EndDate))
 }
 
 type LineItem struct {
@@ -40,4 +44,4 @@ type ImportantItem struct {
 	TotalQuantity    uint32
 }
 
-type Void struct {}
+type Void struct{}

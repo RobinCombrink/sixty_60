@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"parser60/database"
 	"parser60/format"
 	"parser60/schema"
 	"parser60/template"
@@ -23,7 +25,6 @@ import (
 const serverIp string = "127.0.0.1"
 const dateLayout string = "2006-01-02"
 
-var invoices []schema.Invoice
 var serverContext echo.Context
 var blacklist []string
 
@@ -58,8 +59,7 @@ func getAuthRoot(c echo.Context, result chan<- string) error {
 /*
 Starts echo HTTP server and blocks the current thread
 */
-func SetupHttpServer(incomingInvoices []schema.Invoice) {
-	invoices = incomingInvoices
+func SetupHttpServer() {
 	instance := echo.New()
 	instance.Pre(middleware.RemoveTrailingSlash())
 
@@ -90,7 +90,7 @@ func getInvoices(c echo.Context) error {
 	// serverContext.Logger().Printf("Important Items Len: %v", len(importantItems))
 
 	// var importantItemsDisplay map[string]schema.DisplayImportantItem = createDisplayImportantItems(importantItems)
-	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesListPage(schema.GetDisplayInvoiceList(invoices).Invoices))
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesListPage(schema.GetDisplayInvoiceList(database.GetInvoices()).Invoices))
 }
 func getSummary(c echo.Context) error {
 	serverContext = c
@@ -106,7 +106,7 @@ func getSummary(c echo.Context) error {
 	// cheeseWhitelist = append(cheeseWhitelist, "Ladismith Cheddar Cheese Pack 800g")
 	// cheeseWhitelist = append(cheeseWhitelist, "Lancewood Cheddar Cheese Pack 900g")
 	// importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: "Cheese", Contains: true})
-	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
+	displayInvoiceSummary := createInvoiceSummary(database.GetInvoices(), schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary))
 }
 
@@ -131,17 +131,28 @@ func postSummaryFilter(c echo.Context) error {
 	}
 	searchText := c.FormValue("searchText")
 	containsStr := c.FormValue("searchContains")
+
+	fmt.Println("ContainsStr:", containsStr)
+
 	var contains bool
-	if containsStr == "true" {
+	if containsStr == "on" {
 		contains = true
 	} else {
 		contains = false
 	}
-	importantItemFilters := make([]schema.ImportantItemFilter, 1)
-	importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: searchText, Contains: contains})
-	
-	displayInvoiceSummary := createInvoiceSummary(invoices, schema.Filter{StartDate: startDate, EndDate: endDate, ImportantItemFilters: importantItemFilters})
-	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDateStr, endDateStr, displayInvoiceSummary))
+	importantItemFilters := make([]schema.ImportantItemFilter, 0)
+	importantItemFilters = append(importantItemFilters, schema.ImportantItemFilter{Name: searchText, ExactSearch: contains})
+
+	dateFilter := schema.Filter{
+		StartDate:            startDate,
+		EndDate:              endDate,
+		ImportantItemFilters: importantItemFilters,
+	}
+
+	fmt.Println("\n", dateFilter, "\n")
+
+	displayInvoiceSummary := createInvoiceSummary(database.GetInvoices(), dateFilter)
+	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesSummarySection(displayInvoiceSummary))
 }
 
 func postImportantItemsFilter(c echo.Context) error {
@@ -153,12 +164,12 @@ func deleteImportantItem(c echo.Context) error {
 }
 
 func updateImportantItems(importantItems map[string]schema.ImportantItem, lineItem schema.LineItem, importantItemFilter schema.ImportantItemFilter) map[string]schema.ImportantItem {
-	if importantItemFilter.Contains {
-		if strings.Contains(lineItem.Name, importantItemFilter.Name) {
+	if importantItemFilter.ExactSearch {
+		if lineItem.Name == importantItemFilter.Name {
 			checkBlacklistAndFilter(importantItemFilter, lineItem, importantItems)
 		}
 	} else {
-		if lineItem.Name == importantItemFilter.Name {
+		if strings.Contains(lineItem.Name, importantItemFilter.Name) {
 			checkBlacklistAndFilter(importantItemFilter, lineItem, importantItems)
 		}
 	}
@@ -176,7 +187,7 @@ func checkBlacklistAndFilter(importantItemFilter schema.ImportantItemFilter, lin
 }
 
 func filter(lineItem schema.LineItem, importantItems map[string]schema.ImportantItem, importantItemFilter schema.ImportantItemFilter) {
-	serverContext.Logger().Printf("%s %v\n", lineItem.Name, lineItem.Price-lineItem.Discount)
+	// serverContext.Logger().Printf("%s %v\n", lineItem.Name, lineItem.Price-lineItem.Discount)
 	names := importantItems[importantItemFilter.Name].Names
 	if names == nil {
 		names = make(map[string]schema.Void)
@@ -217,9 +228,9 @@ func createInvoiceSummary(invoices []schema.Invoice, filter schema.Filter) schem
 	var importantItems map[string]schema.ImportantItem = make(map[string]schema.ImportantItem, len(filter.ImportantItemFilters))
 
 	for _, invoice := range invoices {
-		if filter.StartDate.IsZero() || (invoice.Date.After(filter.StartDate) && invoice.Date.Before(filter.EndDate)) {
+		if invoice.MatchesFilter(filter) {
 
-			invoiceTotal, invoiceSaved, invoiceItemsOrdered := invoice.CalculateInvoice(filter)
+			invoiceTotal, invoiceSaved, invoiceItemsOrdered := invoice.CalculateItemTotals(filter)
 
 			for _, lineItem := range invoice.Items {
 				for _, importantItemFilter := range filter.ImportantItemFilters {
