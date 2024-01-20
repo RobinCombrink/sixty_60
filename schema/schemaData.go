@@ -1,9 +1,12 @@
 package schema
 
 import (
-	"fmt"
+	"parser60/format"
 	"strconv"
+	"strings"
 	"time"
+
+	"golang.org/x/exp/maps"
 )
 
 type Invoice struct {
@@ -13,19 +16,18 @@ type Invoice struct {
 	Date        time.Time
 }
 
-func (invoice Invoice) CalculateItemTotals() (uint64, uint64, uint64) {
-	var invoiceTotal uint64 = 0
-	var invoiceSaved uint64 = 0
-	var invoiceItemsOrdered uint64 = 0
+func (invoice Invoice) CalculateItemTotals(itemFilter ItemFilter) (invoiceTotal uint64, invoiceSaved uint64, invoiceItemsOrdered uint64) {
 	for _, lineItem := range invoice.Items {
-		invoiceTotal += lineItem.Total
-		invoiceSaved += lineItem.Discount
-		invoiceItemsOrdered += 1
+		if lineItem.MatchesFilter(itemFilter) {
+			invoiceTotal += lineItem.Total
+			invoiceSaved += lineItem.Discount
+			invoiceItemsOrdered += 1
+		}
 	}
 	return invoiceTotal, invoiceSaved, invoiceItemsOrdered
 }
 
-func (invoice Invoice) MatchesFilter(filter Filter) bool {
+func (invoice Invoice) MatchesFilter(filter DateFilter) bool {
 	return filter.StartDate.IsZero() || (invoice.Date.After(filter.StartDate) && invoice.Date.Before(filter.EndDate))
 }
 
@@ -35,6 +37,27 @@ type LineItem struct {
 	Price    uint64
 	Total    uint64
 	Discount uint64
+}
+
+func (lineItem LineItem) MatchesFilter(filter ItemFilter) bool {
+
+	if filter.SearchTerm == nil {
+		return true
+	}
+
+	name := lineItem.Name
+	searchTerm := *filter.SearchTerm
+
+	if filter.CaseInsensitive {
+		name = strings.ToLower(name)
+		searchTerm = strings.ToLower(searchTerm)
+	}
+
+	if filter.Contains {
+		return strings.Contains(name, searchTerm)
+	}
+
+	return name == searchTerm
 }
 
 type ImportantItem struct {
@@ -47,24 +70,19 @@ type ImportantItem struct {
 }
 
 func (i ImportantItem) ToDisplay() DisplayImportantItem {
-	var names []string
-	for name := range i.Names {
-		names = append(names, name)
-	}
-
-	averageUnitPrice := "0"
-	if i.TotalQuantity != 0 {
-		averageUnitPrice = fmt.Sprintf("%.2f", float64(i.TotalSpent)/float64(i.TotalQuantity))
-	}
+	//  	averageUnitPrice := "0"
+	// if i.TotalQuantity != 0 {
+	// averageUnitPrice = fmt.Sprintf("%.2f", float64(i.TotalSpent)/float64(i.TotalQuantity))
+	//  }
 
 	return DisplayImportantItem{
-		Names:            names,
-		TotalSpent:       strconv.FormatUint(i.TotalSpent, 10),
-		MaximumUnitPrice: strconv.FormatUint(i.MaximumUnitPrice, 10),
-		MinimumUnitPrice: strconv.FormatUint(i.MinimumUnitPrice, 10),
-		AverageUnitPrice: averageUnitPrice,
+		Names:            maps.Keys(i.Names),
+		TotalSpent:       format.ToRand(i.TotalSpent),
 		TotalQuantity:    strconv.FormatUint(uint64(i.TotalQuantity), 10),
-		TotalSaved:       strconv.FormatUint(i.TotalSaved, 10),
+		TotalSaved:       format.ToRand(i.TotalSaved),
+		MaximumUnitPrice: format.ToRand(i.MaximumUnitPrice),
+		MinimumUnitPrice: format.ToRand(i.MinimumUnitPrice),
+		AverageUnitPrice: format.ToRand(i.TotalSpent / uint64(i.TotalQuantity)),
 	}
 }
 
@@ -72,4 +90,8 @@ type Void struct{}
 
 type Display[T any] interface {
 	ToDisplay() T
+}
+
+type Filterable interface {
+	MatchesFilter() bool
 }

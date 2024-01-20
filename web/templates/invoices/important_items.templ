@@ -42,19 +42,19 @@ templ importantItemList(items []schema.DisplayImportantItem) {
 						for _, name := range item.Names {
 							<div id={ name }>
 								<h3>{ name }</h3>
-								<input type="button" hx-delete="/summary/important_items/delete/{}" hx-boost="true" hx-trigger="click" value="remove"/>
+								<input type="button" hx-delete={ "/summary/important_items/delete/" + name } hx-boost="true" hx-trigger="click" value="remove"/>
 							</div>
 						}
 					</div>
 				}
-				<ul>
+				<ol>
 					<li>MaximumUnitPrice: { item.MaximumUnitPrice }</li>
 					<li>MinimumUnitPrice: { item.MaximumUnitPrice }</li>
 					<li>TotalSpent:{ item.TotalSpent } </li>
 					<li>TotalQuantity:{ item.TotalQuantity }</li>
 					<li>TotalSaved: { item.TotalSaved }</li>
 					// <li>AverageSpent:{ item.AverageSpent }</li>
-				</ul>
+				</ol>
 			</div>
 		}
 	</div>

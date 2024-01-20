@@ -1,5 +1,7 @@
 package schema
 
+import "strconv"
+
 type DisplayImportantItem struct {
 	Names            []string
 	TotalSpent       string
@@ -11,21 +13,21 @@ type DisplayImportantItem struct {
 }
 
 type DisplayInvoiceSummary struct {
-	TotalSpent        string
-	TotalSaved        string
-	TotalItemsOrdered uint64
-	TotalOrders       uint64
+	TotalSpent               string
+	TotalSaved               string
+	TotalItemsMatchingSearch string
+	TotalOrders              string
 }
 
-func GetDisplayInvoiceSummary(totalSpent string,
+func MakeDisplayInvoiceSummary(totalSpent string,
 	totalSaved string,
-	totalItemsOrdered uint64,
+	totalItemsMatchingSearch uint64,
 	totalOrders uint64) DisplayInvoiceSummary {
 	return DisplayInvoiceSummary{
-		TotalSpent:        totalSpent,
-		TotalSaved:        totalSaved,
-		TotalItemsOrdered: totalItemsOrdered,
-		TotalOrders:       totalOrders,
+		TotalSpent:               totalSpent,
+		TotalSaved:               totalSaved,
+		TotalItemsMatchingSearch: strconv.FormatUint(uint64(totalItemsMatchingSearch), 10),
+		TotalOrders:              strconv.FormatUint(uint64(totalOrders), 10),
 	}
 }
 
