@@ -21,23 +21,23 @@ const labelName = "Shopping/Sixty60"
 const userLabelType = "user"
 
 func main() {
-	var isLocalOnly bool
+	var isLocal bool
 
 	var rootCmd = &cobra.Command{
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("isLocal: ", isLocalOnly)
+			fmt.Println("isLocal: ", isLocal)
 		},
 	}
 
-	rootCmd.Flags().BoolVarP(&isLocalOnly, "local", "l", false, "Use already downloaded data")
+	rootCmd.Flags().BoolVarP(&isLocal, "local", "l", false, "Use already downloaded data")
 
 	rootCmd.Execute()
 	var messageBodies []string
 	//TODO: The flag is swapped due to air limitations
-	if !isLocalOnly {
-		messageBodies = readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
-	} else {
+	if !isLocal {
 		messageBodies = readMessageBodiesFromGoogle(true)
+	} else {
+		messageBodies = readMessageBodiesFromLocal(filepath.Join("secrets", "messages"))
 	}
 
 	database.AddInvoices(messageBodies)
