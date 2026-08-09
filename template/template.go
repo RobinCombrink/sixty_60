@@ -26,7 +26,7 @@ func NewTemplateRenderer(e *echo.Echo, paths ...string) {
 		"divideUInt16":   DivideUInt16,
 		"DateToday":      dateToday})
 	for i := range paths {
-		fmt.Printf(paths[i] + "\n")
+		fmt.Println(paths[i])
 		template.Must(tmpl.ParseGlob(paths[i]))
 	}
 	t := newTemplate(tmpl)

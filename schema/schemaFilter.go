@@ -32,7 +32,7 @@ func (f DateFilter) String() string {
 }
 
 func (i ItemFilter) String() string {
-	return fmt.Sprintf("ItemFilter: SearchTerm: %s, Contains: %t, CaseInsensitive: %t",
+	return fmt.Sprintf("ItemFilter: SearchTerm: %v, Contains: %t, CaseInsensitive: %t",
 		i.SearchTerm, i.Contains, i.CaseInsensitive)
 }
 

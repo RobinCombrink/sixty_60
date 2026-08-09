@@ -113,7 +113,7 @@ func getSummary(c echo.Context) error {
 		EndDate:   endDate} // ImportantItemFilters: importantItemFilters}
 	itemFilter := schema.ItemFilter{}
 
-	fmt.Println("\n", dateFilter, "\n")
+	fmt.Println("\n", dateFilter)
 
 	displayInvoiceSummary := createInvoiceSummary(database.GetInvoices(), dateFilter, itemFilter)
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoiceSummaryPage(startDate.Format(dateLayout), endDate.Format(dateLayout), displayInvoiceSummary)) //, displayImportantItems))
@@ -165,7 +165,7 @@ func postSummaryFilter(c echo.Context) error {
 		CaseInsensitive: true,
 	}
 
-	fmt.Println("\n", dateFilter, "\n")
+	fmt.Println("\n", dateFilter)
 
 	displayInvoiceSummary := createInvoiceSummary(database.GetInvoices(), dateFilter, itemFilter)
 	return render(c, http.StatusOK, invoiceTemplates.CreateInvoicesSummarySection(displayInvoiceSummary))
