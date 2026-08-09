@@ -23,11 +23,8 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Install templ
-        run: go install github.com/a-h/templ/cmd/templ@latest
-
       - name: Generate templates
-        run: templ generate
+        run: go tool templ generate
 
       - name: Build
         run: go build -o parser60 .
@@ -63,11 +60,8 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Install templ
-        run: go install github.com/a-h/templ/cmd/templ@latest
-
       - name: Generate templates
-        run: templ generate
+        run: go tool templ generate
 
       - name: Build release binary
         env:
